@@ -3,10 +3,12 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
 
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VModalActions },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -32,12 +34,12 @@ export default {
                 :value="modal.data.time"
                 required />
         </label>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton type="submit">Перенести урок</AppButton>
             <AppButton
                 variant="ghost"
                 @click="closeModal">Отмена</AppButton>
-        </div>
+        </VModalActions>
     </form>
 </template>
 

@@ -241,7 +241,11 @@ export default {
             margin: 0;
             font-weight: 700;
 
-            @include text(px2);
+            @include text(px1);
+
+            @include respond-to(mobile) {
+                @include text(px1_5);
+            }
         }
 
         p {
@@ -249,6 +253,10 @@ export default {
             color: var(--muted);
 
             @include text(px2);
+
+            @include respond-to(mobile) {
+                @include text(px3);
+            }
         }
     }
 
@@ -287,7 +295,7 @@ export default {
         border-radius: $radius $radius 0 0;
         padding: 4px $padding-mobile calc($padding-mobile + var(--device-safe-bottom));
         overflow-y: auto;
-        box-shadow: 0 -14px 48px rgba($ink, 0.2);
+        box-shadow: 0 -14px 48px rgba($canvas, 0.08);
         animation: none;
         transform: translate3d(0, var(--sheet-drag-offset, 0px), 0);
         transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);

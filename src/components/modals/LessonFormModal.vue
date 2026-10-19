@@ -7,10 +7,12 @@ import ValidatedField from '../ValidatedField.vue';
 import AppButton from '../AppButton.vue';
 import CustomSelect from '../CustomSelect.vue';
 
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { CustomSelect, ValidatedField, AppButton },
+  components: { CustomSelect, ValidatedField, AppButton, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
     const selectedStudentId = ref(props.workspace.state.students[0]?.id ?? '');
@@ -116,7 +118,7 @@ export default {
                 name="paymentStatus"
                 :options="paymentOptions" />
         </div>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 type="submit"
                 :loading="modal.busy"
@@ -124,7 +126,7 @@ export default {
             <AppButton
                 variant="ghost"
                 @click="closeModal">Отмена</AppButton>
-        </div>
+        </VModalActions>
     </form>
 </template>
 

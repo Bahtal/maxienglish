@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineAsyncComponent, onMounted, toRef, unref } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref, toRef, unref } from 'vue';
 import AppSidebar from './AppSidebar.vue';
 import AppHeader from './AppHeader.vue';
 import PageHeading from './PageHeading.vue';
@@ -28,6 +28,8 @@ const props = defineProps({
 
 const emit = defineEmits(['workspace-action']);
 const workspace = toRef(props, 'workspace');
+const pageSlideDirection = ref('forward');
+const pageSlideActive = ref(false);
 
 onMounted(() => {
     props.workspace.applyTheme();
@@ -98,6 +100,35 @@ const isTeacherProfile = computed(() => {
 const isStudentProfile = computed(() => {
     return props.workspace.state.page === 'profile' && props.workspace.state.role === 'student';
 });
+
+const activePageComponent = computed(() => {
+    if (isTheme.value) return ThemePickerPage;
+    if (isHomeStudent.value) return StudentHomePage;
+    if (isHomeTeacher.value) return TeacherHomePage;
+    if (isPayments.value) return PaymentsPage;
+    if (isHomework.value) return HomeworkPage;
+    if (isCalendar.value) return CalendarPage;
+    if (isStudentsPage.value) return TeacherStudentsPage;
+    if (isTeacherProfile.value) return TeacherProfilePage;
+    if (isStudentProfile.value) return StudentProfilePage;
+
+    return null;
+});
+
+const pageTransitionName = computed(() => {
+    return pageSlideActive.value
+        ? `page-slide-${pageSlideDirection.value}`
+        : 'page-static';
+});
+
+function startPageSlide(direction) {
+    pageSlideDirection.value = direction;
+    pageSlideActive.value = true;
+}
+
+function finishPageSlide() {
+    pageSlideActive.value = false;
+}
 </script>
 
 <template>
@@ -137,63 +168,28 @@ const isStudentProfile = computed(() => {
                             @workspace-action="forwardWorkspaceAction"
                         />
 
-                        <ThemePickerPage
-                            v-if="isTheme"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <StudentHomePage
-                            v-else-if="isHomeStudent"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <TeacherHomePage
-                            v-else-if="isHomeTeacher"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <PaymentsPage
-                            v-else-if="isPayments"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <HomeworkPage
-                            v-else-if="isHomework"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <CalendarPage
-                            v-else-if="isCalendar"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <TeacherStudentsPage
-                            v-else-if="isStudentsPage"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <TeacherProfilePage
-                            v-else-if="isTeacherProfile"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
-
-                        <StudentProfilePage
-                            v-else-if="isStudentProfile"
-                            :workspace="workspace"
-                            @workspace-action="forwardWorkspaceAction"
-                        />
+                        <div :class="$style.pageViewport">
+                            <Transition
+                                :name="pageTransitionName"
+                                @after-enter="finishPageSlide"
+                            >
+                                <component
+                                    :is="activePageComponent"
+                                    v-if="activePageComponent"
+                                    :key="`${workspace.state.role}:${workspace.state.page}`"
+                                    :workspace="workspace"
+                                    @workspace-action="forwardWorkspaceAction"
+                                />
+                            </Transition>
+                        </div>
                     </section>
                 </main>
 
-                <BottomNavigation :workspace="workspace" @workspace-action="forwardWorkspaceAction" />
+                <BottomNavigation
+                    :workspace="workspace"
+                    @workspace-action="forwardWorkspaceAction"
+                    @page-navigate="startPageSlide"
+                />
 
                 <ModalHost
                     :workspace="workspace"
@@ -336,6 +332,60 @@ const isStudentProfile = computed(() => {
     min-width: 0;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.pageViewport {
+    display: grid;
+    min-width: 0;
+
+    > * {
+        grid-area: 1 / 1;
+        width: 100%;
+        min-width: 0;
+        height: fit-content;
+    }
+}
+
+:global(.page-slide-forward-enter-active),
+:global(.page-slide-forward-leave-active),
+:global(.page-slide-backward-enter-active),
+:global(.page-slide-backward-leave-active) {
+    transition: transform $page-transition-duration $ease-in-out;
+    will-change: transform;
+}
+
+:global(.page-slide-forward-enter-from) {
+    transform: translateX(100%);
+}
+
+:global(.page-slide-forward-leave-to) {
+    transform: translateX(-100%);
+}
+
+:global(.page-slide-backward-enter-from) {
+    transform: translateX(-100%);
+}
+
+:global(.page-slide-backward-leave-to) {
+    transform: translateX(100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :global(.page-slide-forward-enter-active),
+    :global(.page-slide-forward-leave-active),
+    :global(.page-slide-backward-enter-active),
+    :global(.page-slide-backward-leave-active) {
+        transition: opacity 120ms ease-out;
+        will-change: opacity;
+    }
+
+    :global(.page-slide-forward-enter-from),
+    :global(.page-slide-forward-leave-to),
+    :global(.page-slide-backward-enter-from),
+    :global(.page-slide-backward-leave-to) {
+        opacity: 0;
+        transform: none;
+    }
 }
 
 @keyframes fade-in {

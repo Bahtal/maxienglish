@@ -3,10 +3,12 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
 
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VModalActions },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -23,7 +25,7 @@ export default {
             v-if="modal.error"
             :class="$style.formError"
             role="alert">{{ modal.error }}</p>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 type="submit"
                 :loading="modal.busy"
@@ -32,7 +34,7 @@ export default {
                 variant="ghost"
                 :disabled="modal.busy"
                 @click="closeModal">Отмена</AppButton>
-        </div>
+        </VModalActions>
     </form>
 </template>
 

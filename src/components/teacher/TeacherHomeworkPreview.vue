@@ -3,30 +3,35 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import HomeworkRow from '../HomeworkRow.vue';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { HomeworkRow },
+  components: { HomeworkRow, VSectionHeader },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.sectionCard, $style.teacherHomeworkCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Последние задания</h2>
-                <p>Материалы, отправленные ученикам</p>
-            </div>
-            <button
-                :class="$style.textLink"
-                @click="go('homework')">
-                &#32;Перейти к ДЗ&#32;&#32;
-                <svg>
-                    <use href="#icon-arrow" />
-                </svg>
-            </button>
-        </div>
+    <section :class="[$style.sectionCard, $style.teacherHomeworkCard]">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Последние задания"
+            description="Материалы, отправленные ученикам"
+        >
+            <template #aside>
+                <button
+                    :class="$style.textLink"
+                    @click="go('homework')"
+                >
+                    &#32;Перейти к ДЗ&#32;&#32;
+                    <svg>
+                        <use href="#icon-arrow" />
+                    </svg>
+                </button>
+            </template>
+        </VSectionHeader>
         <div :class="$style.homeworkList">
             <HomeworkRow
                 v-for="item in homeworkList.slice(0,3)"
@@ -40,13 +45,6 @@ export default {
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionCard {
     padding: $padding;
 
@@ -70,7 +68,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -78,6 +80,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -118,17 +124,6 @@ export default {
         stroke: currentColor;
         fill: none;
     }
-}
-
-[data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-}
-
-.teacherHomeworkCard {
-    margin-top: 16px;
 }
 
 .homeworkList {

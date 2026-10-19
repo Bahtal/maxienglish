@@ -1,24 +1,26 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VAvatar from '../VAvatar.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VAvatar },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.profileOverview]">
+    <section :class="$style.profileOverview">
         <div :class="$style.profileIdentity">
-            <span :class="[$style.avatar, $style.profilePageAvatar]">
-                <img
-                    v-if="state.studentUser.avatarUrl"
-                    :src="state.studentUser.avatarUrl"
-                    alt="" />
-                <template
-                    v-else>{{ initials(state.studentUser.name) }}</template>
-            </span>
+            <VAvatar
+                :class="$style.avatar"
+                size="large"
+                radius="default"
+                :src="state.studentUser.avatarUrl"
+                :name="state.studentUser.name"
+            />
             <div>
                 <h2>{{ state.studentUser.name }}</h2>
                 <p
@@ -44,27 +46,8 @@ export default {
 
 <style lang="scss" module>
 .avatar {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border-radius: $radius;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-
-    > img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        object-fit: cover;
-    }
+    font-size: 17px;
+    font-weight: 100;
 }
 
 .eyebrow {
@@ -74,20 +57,6 @@ export default {
     margin: 0;
 
     @include text(px3);
-}
-
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
-[data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
 }
 
 .miniProgress {
@@ -137,14 +106,6 @@ export default {
     @include respond-to(mobile) {
         gap: $gap-sm;
     }
-}
-
-.profilePageAvatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex-basis: $width-block-big;
-    font-size: 17px;
-    font-weight: 100;
 }
 
 .profileIdentity {

@@ -6,10 +6,14 @@ import AppButton from '../components/AppButton.vue';
 import CustomSelect from '../components/CustomSelect.vue';
 import HomeworkRow from '../components/HomeworkRow.vue';
 
+import VSectionHeader from '../components/VSectionHeader.vue';
+
+import VEmptyState from '../components/VEmptyState.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton, CustomSelect, HomeworkRow },
+  components: { AppButton, CustomSelect, HomeworkRow, VSectionHeader, VEmptyState },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
     const selectedHomeworkStudent = ref('');
@@ -143,23 +147,24 @@ export default {
 
 <template>
     <section :class="[$style.card, $style.sectionCard, $style.homeworkPage]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>{{ state.role === 'student' ? 'Мои задания' : 'Задания учеников' }}</h2>
-                <p>{{ filteredHomework.length }}  {{ humanCount(filteredHomework.length,'задание','задания','заданий') }}</p>
-            </div>
-
-            <AppButton
-                v-if="state.role === 'teacher'"
-                size="small"
-                @click="openHomeworkForm()"
-            >
-                <svg>
-                    <use href="#icon-plus" />
-                </svg>
-                &#32;Добавить задание
-            </AppButton>
-        </div>
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            :title="state.role === 'student' ? 'Мои задания' : 'Задания учеников'"
+            :description="filteredHomework.length + ' ' + humanCount(filteredHomework.length, 'задание', 'задания', 'заданий')"
+        >
+            <template #aside>
+                <AppButton
+                    v-if="state.role === 'teacher'"
+                    size="small"
+                    @click="openHomeworkForm()"
+                >
+                    <svg>
+                        <use href="#icon-plus" />
+                    </svg>
+                    &#32;Добавить задание
+                </AppButton>
+            </template>
+        </VSectionHeader>
 
         <div
             v-if="state.role === 'teacher'"
@@ -201,14 +206,17 @@ export default {
                 :student-name="studentById(item.studentId)?.name"
                 :teacher="state.role === 'teacher'"
                 @open="openHomework"
-                @done="markHomeworkDone" />
-            <div
+                @done="markHomeworkDone"
+            />
+
+            <VEmptyState
                 v-if="!filteredHomework.length"
-                :class="$style.emptyState">
-                <b>{{ hasHomeworkFilters ? 'Ничего не найдено' : 'Заданий нет' }}</b>
-                <span>{{ hasHomeworkFilters ? 'Попробуйте изменить фильтры.' : 'Новые материалы появятся здесь.' }}</span>
-            </div>
+                :class="$style.emptyState"
+                :title="hasHomeworkFilters ? 'Ничего не найдено' : 'Заданий нет'"
+                :description="hasHomeworkFilters ? 'Попробуйте изменить фильтры.' : 'Новые материалы появятся здесь.'"
+            />
         </div>
+
         <button
             v-if="state.role === 'teacher' && filteredHomework.length > 4"
             :class="$style.showHomeworkButton"
@@ -251,7 +259,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -259,6 +271,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     svg {

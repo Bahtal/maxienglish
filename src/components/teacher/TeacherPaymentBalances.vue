@@ -2,9 +2,17 @@
 import { computed } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VAvatar from '../VAvatar.vue';
+import VIcon from '../VIcon.vue';
+
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+
 export default {
     props: { workspace: { type: Object, required: true } },
     emits: ['workspace-action'],
+    components: { VAvatar, VIcon, VSectionHeader, VEmptyState },
     setup(props, { emit }) {
         const view = useWorkspaceView(props, emit);
         const students = computed(() => [...props.workspace.state.students]
@@ -16,25 +24,34 @@ export default {
 </script>
 
 <template>
-    <section :class="[$style.card, $style.balanceCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Баланс учеников</h2>
-                <p>Остаток оплаченных занятий и дата последней оплаты</p>
-            </div>
-            <span :class="$style.statIcon">
-                <svg>
-                    <use href="#icon-users" />
-                </svg>
-            </span>
-        </div>
+    <section :class="$style.balanceCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Баланс учеников"
+            description="Остаток оплаченных занятий и дата последней оплаты"
+        >
+            <template #aside>
+                <VIcon
+                    name="users"
+                    size="small"
+                    tile
+                />
+            </template>
+        </VSectionHeader>
 
         <div v-if="students.length" :class="$style.studentList">
             <article
                 v-for="student in students"
                 :key="student.id"
                 :class="$style.studentRow">
-                <span :class="$style.avatar">{{ initials(student.name) }}</span>
+                <VAvatar
+                    size="large"
+                    responsive
+                    tone="purple"
+                    radius="mini"
+                    dark-text
+                    :name="student.name"
+                />
                 <div :class="$style.studentInfo">
                     <b>{{ student.name }}</b>
                     <span>Последняя оплата: {{ student.lastPayment ? cap(formatDay(student.lastPayment)) : 'нет данных' }}</span>
@@ -45,21 +62,16 @@ export default {
             </article>
         </div>
 
-        <div v-else :class="$style.emptyState">
-            <b>Учеников пока нет</b>
-            <span>Когда появятся ученики, здесь будет их баланс.</span>
-        </div>
+        <VEmptyState
+            v-else
+            :class="$style.emptyState"
+            title="Учеников пока нет"
+            description="Когда появятся ученики, здесь будет их баланс."
+        />
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    border-radius: $radius;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-}
-
 .balanceCard {
     padding: $padding;
 
@@ -83,7 +95,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -91,25 +107,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.statIcon {
-    width: $width-block;
-    height: $height-block;
-    display: grid;
-    place-items: center;
-    flex: 0 0 $width-block;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.8;
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -128,26 +129,6 @@ export default {
     &:last-child {
         border-bottom: 0;
         padding-bottom: 0;
-    }
-}
-
-.avatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: $white;
-    background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    font-weight: 700;
-
-    @include text(px2);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-        flex: 0 0 $width-block;
     }
 }
 
@@ -213,14 +194,4 @@ export default {
     }
 }
 
-[data-theme='darked'] {
-    .card {
-        border-color: var(--line);
-        background: var(--surface);
-    }
-
-    .avatar {
-        color: var(--canvas);
-    }
-}
 </style>

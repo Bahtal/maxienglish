@@ -4,10 +4,16 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 import ValidatedField from '../ValidatedField.vue';
 import AppButton from '../AppButton.vue';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { ValidatedField, AppButton },
+  components: { ValidatedField, AppButton, VSectionHeader, VEmptyState, VModalActions },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -68,17 +74,23 @@ export default {
                 :max-length="8" />
         </div>
         <section :class="$style.detailSection">
-            <div :class="$style.sectionHeading">
-                <div>
-                    <h3>Абонементы</h3>
-                    <p>Пакеты, которые ученик увидит в заявке на оплату.</p>
-                </div>
-                <AppButton
-                    variant="outline"
-                    size="small"
-                    type="button"
-                    @click="addPlan">Добавить пакет</AppButton>
-            </div>
+            <VSectionHeader
+                :class="$style.sectionHeading"
+                title="Абонементы"
+                description="Пакеты, которые ученик увидит в заявке на оплату."
+                heading-tag="h3"
+            >
+                <template #aside>
+                    <AppButton
+                        variant="outline"
+                        size="small"
+                        type="button"
+                        @click="addPlan"
+                    >
+                        Добавить пакет
+                    </AppButton>
+                </template>
+            </VSectionHeader>
             <div
                 v-for="(plan,index) in profileForm.plans"
                 :key="plan.id || index"
@@ -117,18 +129,18 @@ export default {
                     type="button"
                     @click="removePlan(index)">Удалить</AppButton>
             </div>
-            <div
+            <VEmptyState
                 v-if="!profileForm.plans.length"
-                :class="$style.emptyState">
-                <span>Добавьте хотя бы один пакет, чтобы ученики могли отправить заявку.</span>
-            </div>
+                :class="$style.emptyState"
+                description="Добавьте хотя бы один пакет, чтобы ученики могли отправить заявку."
+            />
         </section>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton type="submit">Сохранить настройки</AppButton>
             <AppButton
                 variant="ghost"
                 @click="closeModal">Отмена</AppButton>
-        </div>
+        </VModalActions>
     </form>
 </template>
 
@@ -149,13 +161,22 @@ export default {
         letter-spacing: -0.25px;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
         margin: 4px 0 0;
         color: var(--muted);
-        font-size: 10px;
+
+        @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     > svg {

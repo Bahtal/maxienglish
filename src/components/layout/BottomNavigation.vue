@@ -1,10 +1,12 @@
 <script>
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
+import VIcon from '../VIcon.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
-  emits: ['workspace-action'],
+  emits: ['workspace-action', 'page-navigate'],
+  components: { VIcon },
     setup(props, { emit }) {
         const workspace = useWorkspaceView(props, emit);
         const studentItems = [
@@ -34,6 +36,17 @@ export default {
             return offset === 0 ? '0px' : `calc(${offset * 100}% + ${offset * 4}px)`;
         });
 
+        function navigateToItem(item) {
+            const activeIndex = navItems.value.findIndex(isActive);
+            const targetIndex = navItems.value.findIndex((navItem) => navItem.page === item.page);
+
+            if (activeIndex >= 0 && targetIndex !== activeIndex) {
+                emit('page-navigate', targetIndex > activeIndex ? 'forward' : 'backward');
+            }
+
+            workspace.go(item.page);
+        }
+
         const indicatorStretched = ref(false);
         let indicatorFrame = 0;
         let indicatorTimer = 0;
@@ -60,6 +73,7 @@ export default {
             navItems,
             isActive,
             activeNavShift,
+            navigateToItem,
             indicatorStretched,
         });
     },
@@ -75,13 +89,13 @@ export default {
             v-for="item in navItems"
             :key="item.page"
             :class="[$style.navItem, { [$style.active]: isActive(item) }]"
-            @click="go(item.page)"
+            @click="navigateToItem(item)"
         >
-            <span :class="$style.navIcon">
-                <svg>
-                    <use :href="`#icon-${item.icon}`" />
-                </svg>
-            </span>
+            <VIcon
+                :class="$style.navIcon"
+                :name="item.icon"
+                size="nav"
+            />
             <span>{{ item.label }}</span>
         </button>
     </nav>
@@ -113,8 +127,14 @@ export default {
     border: none;
     margin: 0;
     outline: none;
+    -webkit-tap-highlight-color: $transparent;
 
     @include text(px2);
+
+    &:focus-visible {
+        outline: 2px solid var(--purple);
+        outline-offset: 2px;
+    }
 
     &.active {
         color: $white;
@@ -122,21 +142,7 @@ export default {
 }
 
 .navIcon {
-    width: $svg;
-    height: $svg;
-    display: grid;
-    place-items: center;
-    flex: 0 0 $svg;
-
-    svg {
-        width: $svg;
-        height: $svg;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
+    color: inherit;
 }
 
 @include respond-to(mobile) {
@@ -184,6 +190,11 @@ export default {
             gap: 3px;
             font-size: 8px;
             text-align: center;
+            -webkit-tap-highlight-color: $transparent;
+
+            &:active {
+                background-color: $transparent;
+            }
 
             &.active {
                 color: var(--purple);

@@ -2,11 +2,14 @@
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
+import VAvatar from '../VAvatar.vue';
+
+import VModalActions from '../VModalActions.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VAvatar, VModalActions },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -14,14 +17,14 @@ export default {
 <template>
     <div :class="$style.teacherPublicProfile">
         <div :class="$style.modalProfile">
-            <span :class="$style.avatar">
-                <img
-                    v-if="modal.data.avatarUrl"
-                    :src="modal.data.avatarUrl"
-                    alt=""
-                />
-                <template v-else>{{ initials(modal.data.name) }}</template>
-            </span>
+            <VAvatar
+                size="large"
+                responsive
+                radius="default"
+                mobile-radius="micro"
+                :src="modal.data.avatarUrl"
+                :name="modal.data.name"
+            />
             <span>
                 <b>{{ modal.data.name }}</b>
             </span>
@@ -30,42 +33,18 @@ export default {
             <h3>О преподавателе</h3>
             <p>{{ modal.data.bio || 'Описание пока не добавлено.' }}</p>
         </section>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 variant="outline"
                 @click="openChat()"
             >
                 Написать преподавателю
             </AppButton>
-        </div>
+        </VModalActions>
     </div>
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: $width-block;
-    height: $height-block;
-    flex: 0 0 $width-block;
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border-radius: $radius-mini;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-
-    > img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        object-fit: cover;
-    }
-}
-
 .modalActions {
     display: flex;
     margin-top: 16px;
@@ -103,22 +82,14 @@ export default {
         gap: $gap-sm;
     }
 
-    .avatar {
-        width: $width-block-big;
-        height: $height-block-big;
-        flex-basis: $width-block-big;
-        border-radius: $radius;
-
-        @include text(px2);
-    }
-
     > span:last-child {
         display: grid;
     }
 
     b {
         display: block;
-        font-size: 13px;
+
+        @include text(px2);
     }
 
 }

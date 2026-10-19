@@ -1,45 +1,39 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+import VIcon from '../VIcon.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VSectionHeader, VIcon },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.paymentCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Даты оплаты</h2>
-                <p>Последняя и следующая оплата</p>
-            </div>
-            <span :class="$style.statIcon">
-                <svg>
-                    <use href="#icon-wallet" />
-                </svg>
-            </span>
-        </div>
+    <section :class="$style.paymentCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Даты оплаты"
+            description="Последняя и следующая оплата"
+        >
+            <template #aside>
+                <VIcon name="wallet" size="small" tile />
+            </template>
+        </VSectionHeader>
         <div :class="$style.paymentRows">
             <div :class="$style.paymentRow">
                 <span :class="$style.paymentLabel">
-                    <span :class="$style.paymentIcon">
-                        <svg>
-                            <use href="#icon-check" />
-                        </svg>
-                    </span>
+                    <VIcon name="check" size="large" tile :glyph-size="24" />
                     Последняя оплата
                 </span>
                 <strong>{{ state.studentUser.lastPayment ? cap(formatDay(state.studentUser.lastPayment)) : 'Пока нет оплат' }}</strong>
             </div>
             <div :class="$style.paymentRow">
                 <span :class="$style.paymentLabel">
-                    <span :class="$style.paymentIcon">
-                        <svg>
-                            <use href="#icon-calendar" />
-                        </svg>
-                    </span>
+                    <VIcon name="calendar" size="large" tile :glyph-size="24" />
                     Следующая оплата
                 </span>
                 <strong>{{ state.studentUser.nextPayment ? cap(formatDay(state.studentUser.nextPayment)) : 'Не назначена' }}</strong>
@@ -49,13 +43,6 @@ export default {
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionHeading {
     display: flex;
     align-items: flex-start;
@@ -71,7 +58,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -79,6 +70,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     > svg {
@@ -87,13 +82,6 @@ export default {
         flex: 0 0 $svg;
         stroke: currentColor;
         fill: none;
-    }
-}
-
-[data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
     }
 }
 
@@ -130,31 +118,6 @@ export default {
     gap: 9px;
     color: $muted;
     font-size: 10px;
-}
-
-.paymentIcon {
-    width: $width-block-big;
-    height: $height-block-big;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: calc($svg + 4px);
-        height: calc($svg + 4px);
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-    }
 }
 
 .paymentRow {
@@ -198,26 +161,6 @@ export default {
     line-height: 1.5;
 
     @include text(px2);
-}
-
-.statIcon {
-    width: $width-block;
-    height: $height-block;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
 }
 
 [data-theme=darked] {

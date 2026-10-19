@@ -1,21 +1,26 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VSectionHeader, VEmptyState, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.sectionCard, $style.teacherLessonHistory]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>История уроков</h2>
-                <p>Проведённые, отменённые и прошлые занятия</p>
-            </div>
-        </div>
+    <section :class="[$style.sectionCard, $style.teacherLessonHistory]">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="История уроков"
+            description="Проведённые, отменённые и прошлые занятия"
+        />
         <div
             v-for="lesson in [...state.lessons].filter((item) => item.lessonStatus !== 'scheduled' || dateObject(item.date,item.time) < new Date()).sort((a,b)=>dateObject(b.date,b.time)-dateObject(a.date,a.time))"
             :key="lesson.id"
@@ -25,24 +30,22 @@ export default {
                 <span :class="$style.historyRowName">{{ studentById(lesson.studentId)?.name }}</span>
                  <span>{{ cap(formatDay(lesson.date)) }} · {{ lesson.time }}</span>
             </span>
-            <span>{{ lesson.lessonStatus === 'cancelled' ? 'Отменён' : lesson.lessonStatus === 'completed' ? 'Проведён' : statusLabel(lesson.status) }}</span>
+            <VStatusBadge
+                :status="lesson.lessonStatus"
+                tone="muted"
+                variant="text"
+                :label="lesson.lessonStatus === 'cancelled' ? 'Отменён' : lesson.lessonStatus === 'completed' ? 'Проведён' : statusLabel(lesson.status)"
+            />
         </div>
-        <div
-            v-if="!state.lessons.some((lesson) => lesson.lessonStatus !== 'scheduled' || dateObject(lesson.date,lesson.time) < new Date())"
-            :class="$style.emptyState">
-            <b>История уроков появится здесь</b>
-        </div>
+        <VEmptyState
+            v-if="!state.lessons.some((lesson) => lesson.lessonStatus !== 'scheduled' || dateObject(lesson.date, lesson.time) < new Date())"
+            :class="$style.emptyState"
+            title="История уроков появится здесь"
+        />
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionCard {
     padding: $padding;
 
@@ -66,7 +69,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -74,32 +81,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    width: fit-content;
-    padding: 1px 4px;
-    border-radius: $radius;
-    font-weight: 400;
-    white-space: nowrap;
-
-    @include text(px3);
-
-    &:before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    &.paid {
-        color: var(--green);
-        background: color-mix(in srgb, var(--green) 10%, var(--surface));
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -166,11 +151,6 @@ export default {
 }
 
 [data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .historyRow {
         span:last-child {
             color: var(--ink);

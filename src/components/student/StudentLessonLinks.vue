@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import VIcon from '../VIcon.vue';
 import { isValidHttpsUrl } from '../../utils/appConfig.js';
 
 const props = defineProps({
@@ -50,29 +51,18 @@ function openLink(url) {
         <a
             v-for="link in links"
             :key="link.key"
-            :class="[$style.linkCard, { [$style.disabled]: !link.url }]"
+            :class="[$style.linkCard, 'linkCard', { [$style.disabled]: !link.url }]"
             :href="link.url || undefined"
             :aria-disabled="!link.url"
             @click.prevent="openLink(link.url)"
         >
-            <span :class="$style.icon">
-                <svg
-                    v-if="link.icon === 'video'"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <rect x="3" y="6" width="12" height="12" rx="2" />
-                    <path d="m15 10 6-3v10l-6-3z" />
-                </svg>
-                <svg
-                    v-else
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <rect x="3" y="3" width="18" height="18" rx="3" />
-                    <path d="M3 9h18M9 21V9" />
-                </svg>
-            </span>
+            <VIcon
+                :class="$style.linkIcon"
+                :name="link.icon"
+                size="large"
+                tile
+                :stroke-width="1.7"
+            />
 
             <span :class="$style.copy">
                 <b>{{ link.title }}</b>
@@ -104,12 +94,9 @@ function openLink(url) {
     gap: 10px;
     min-width: 0;
     padding: $padding;
-    border: 1px solid var(--border-color);
     border-radius: $radius;
-    background: var(--surface);
     color: var(--ink);
     text-decoration: none;
-    box-shadow: var(--shadow);
     transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 
     @include respond-to(mobile) {
@@ -129,27 +116,6 @@ function openLink(url) {
     &:hover {
         border-color: var(--border-color);
         transform: none;
-    }
-}
-
-.icon {
-    display: grid;
-    place-items: center;
-    flex: 0 0 $width-block-big;
-    width: $width-block-big;
-    height: $height-block-big;
-    border-radius: $radius-mini;
-    background: var(--purple-pale);
-    color: var(--purple);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.7;
-        stroke-linecap: round;
-        stroke-linejoin: round;
     }
 }
 
@@ -197,12 +163,6 @@ function openLink(url) {
     .linkCard {
         gap: 8px;
         padding: 10px;
-    }
-
-    .icon {
-        flex-basis: $width-block;
-        width: $width-block;
-        height: $height-block;
     }
 
     .arrow {

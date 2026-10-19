@@ -1,44 +1,47 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VSectionHeader, VEmptyState, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.sectionCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>История занятий</h2>
-                <p>Ваши последние уроки и посещаемость</p>
-            </div>
-        </div>
+    <section :class="$style.sectionCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="История занятий"
+            description="Ваши последние уроки и посещаемость"
+        />
         <div
             v-for="item in selectedStudent?.attendance || []"
             :key="`${item.date}-${item.time}`"
             :class="$style.historyRow">
             <span>{{ cap(formatDay(item.date)) }} · {{ item.time }}</span>
-            <span>{{ item.status }}</span>
+            <VStatusBadge
+                :status="item.status"
+                tone="muted"
+                variant="text"
+                :label="item.status"
+            />
         </div>
-        <div
+        <VEmptyState
             v-if="!selectedStudent?.attendance?.length"
-            :class="$style.emptyState">
-            <b>История занятий пока пуста.</b>
-        </div>
+            :class="$style.emptyState"
+            title="История занятий пока пуста."
+        />
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionCard {
     padding: $padding;
 
@@ -62,7 +65,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -70,6 +77,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     > svg {
@@ -110,30 +121,13 @@ export default {
     border-bottom: 1px solid var(--line);
 
     @include text(px2);
-}
 
-.historyRow {
     &:last-child {
         border: 0;
-    }
-
-    span:last-child {
-        color: var(--muted);
     }
 }
 
 [data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
-    .historyRow {
-        span:last-child {
-            color: var(--ink);
-        }
-    }
-
     .emptyState {
         b {
             color: var(--ink);

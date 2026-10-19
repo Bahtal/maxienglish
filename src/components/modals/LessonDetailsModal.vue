@@ -3,11 +3,15 @@ import { computed } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
+import VAvatar from '../VAvatar.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
+import VModalActions from '../VModalActions.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VAvatar, VStatusBadge, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
     view.canDeletePastLesson = computed(() => {
@@ -24,8 +28,14 @@ export default {
 <template>
     <div :class="$style.lessonDetail">
         <div :class="$style.modalProfile">
-            <span
-                :class="$style.avatar">{{ initials(state.role === 'teacher' ? studentById(modal.data.studentId)?.name : state.teacher.name) }}</span>
+            <VAvatar
+                :class="$style.avatar"
+                size="large"
+                responsive
+                radius="default"
+                mobile-radius="micro"
+                :name="state.role === 'teacher' ? studentById(modal.data.studentId)?.name || '' : state.teacher.name"
+            />
             <span>
                 <b>{{ state.role === 'teacher' ? studentById(modal.data.studentId)?.name : state.teacher.name }}</b>
                 <small>{{ cap(formatDay(modal.data.date,{weekday:'long',day:'numeric',month:'long'})) }} · {{ modal.data.time }}</small>
@@ -33,10 +43,15 @@ export default {
         </div>
         <div :class="$style.detailStat">
             <small>Статус оплаты</small>
-            <b>{{ statusLabel(modal.data.status) }}</b>
+            <VStatusBadge
+                :status="modal.data.status"
+                :tone="statusClass(modal.data.status)"
+                variant="value"
+                :label="statusLabel(modal.data.status)"
+            />
         </div>
         <p>{{ modal.data.kind }}</p>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 v-if="state.role==='teacher' && modal.data.lessonStatus==='scheduled' && modal.data.status!=='paid'"
                 variant="secondary"
@@ -60,31 +75,11 @@ export default {
             <AppButton
                 variant="ghost"
                 @click="openChat(modal.data.studentId)">{{ state.role==='teacher' ? 'Написать ученику' : 'Написать преподавателю' }}</AppButton>
-        </div>
+        </VModalActions>
     </div>
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
-    display: grid;
-    place-items: center;
-    border-radius: $radius;
-    color: $white;
-    font-weight: 700;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-
-    @include text(px2);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-        flex: 0 0 $width-block;
-    }
-}
-
 .modalActions {
     display: flex;
     flex-wrap: wrap;
@@ -106,10 +101,6 @@ export default {
     background: var(--canvas);
 
     .avatar {
-        width: $width-block-big;
-        height: $height-block-big;
-        flex-basis: $width-block-big;
-        border-radius: $radius;
         font-size: 14px;
     }
 

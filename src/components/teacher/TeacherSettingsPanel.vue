@@ -4,25 +4,33 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 import AppButton from '../AppButton.vue';
 import ValidatedField from '../ValidatedField.vue';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton, ValidatedField },
+  components: { AppButton, ValidatedField, VSectionHeader, VEmptyState, VModalActions },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
     <section :class="$style.teacherProfileSettings">
-        <div :class="$style.sectionHeading">
-            <div>
+        <VSectionHeader
+            :class="$style.sectionHeading"
+        >
+            <template #heading>
                 <p :class="$style.eyebrow">НАСТРОЙКИ</p>
                 <h2>Настройки профиля</h2>
                 <p>Эту информацию о себе и занятиях увидят ученики.</p>
-            </div>
-        </div>
+            </template>
+        </VSectionHeader>
         <form
-            :class="[$style.card, $style.teacherSettingsForm, $style.formStack]"
+            :class="[$style.teacherSettingsForm, $style.formStack]"
             @submit.prevent="submitWorkspaceForm($event, 'saveTeacherSettings')">
             <ValidatedField
                 :model-value="profileForm.specialization"
@@ -76,17 +84,23 @@ export default {
                     :max-length="8" />
             </div>
             <section :class="$style.detailSection">
-                <div :class="$style.sectionHeading">
-                    <div>
-                        <h3>Абонементы</h3>
-                        <p>Пакеты для заявок на оплату.</p>
-                    </div>
-                    <AppButton
-                        variant="outline"
-                        size="small"
-                        type="button"
-                        @click="addPlan">Добавить пакет</AppButton>
-                </div>
+                <VSectionHeader
+                    :class="$style.sectionHeading"
+                    title="Абонементы"
+                    description="Пакеты для заявок на оплату."
+                    heading-tag="h3"
+                >
+                    <template #aside>
+                        <AppButton
+                            variant="outline"
+                            size="small"
+                            type="button"
+                            @click="addPlan"
+                        >
+                            Добавить пакет
+                        </AppButton>
+                    </template>
+                </VSectionHeader>
                 <div
                     v-for="(plan,index) in profileForm.plans"
                     :key="plan.id || index"
@@ -125,15 +139,15 @@ export default {
                         type="button"
                         @click="removePlan(index)">Удалить</AppButton>
                 </div>
-                <div
+                <VEmptyState
                     v-if="!profileForm.plans.length"
-                    :class="$style.emptyState">
-                    <span>Добавьте пакет, чтобы ученик мог отправить заявку на оплату.</span>
-                </div>
+                    :class="$style.emptyState"
+                    description="Добавьте пакет, чтобы ученик мог отправить заявку на оплату."
+                />
             </section>
-            <div :class="$style.modalActions">
+            <VModalActions :class="$style.modalActions">
                 <AppButton type="submit">Сохранить настройки</AppButton>
-            </div>
+            </VModalActions>
         </form>
     </section>
 </template>
@@ -148,11 +162,12 @@ export default {
     @include text(px3);
 }
 
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
+.teacherProfileSettings {
+    padding: $padding;
+
+    @include respond-to(mobile) {
+        padding: $padding-mobile;
+    }
 }
 
 .sectionHeading {
@@ -170,7 +185,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -178,6 +197,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     > svg {
@@ -227,11 +250,6 @@ export default {
 
     }
 
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .emptyState {
         b {
             color: var(--ink);
@@ -242,11 +260,6 @@ export default {
 .formStack {
     display: grid;
     gap: 16px;
-    padding: $padding;
-
-    @include respond-to(mobile) {
-        padding: $padding-mobile;
-    }
 
     .field {
         display: grid;
@@ -331,7 +344,12 @@ export default {
     .sectionHeading {
         h2 {
             margin: 0;
-            font-size: 18px;
+
+            @include text(px1);
+
+            @include respond-to(mobile) {
+                @include text(px1_5);
+            }
         }
 
         .eyebrow {

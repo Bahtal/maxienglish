@@ -1,5 +1,7 @@
 <script setup>
 import AppButton from './AppButton.vue';
+import VIcon from './VIcon.vue';
+import VStatusBadge from './VStatusBadge.vue';
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -19,11 +21,13 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
             :aria-label="`Открыть домашнее задание: ${item.title}`"
             @click="emit('open', item)"
         >
-            <span :class="$style.homeworkIcon">
-                <svg>
-                    <use href="#icon-file" />
-                </svg>
-            </span>
+            <VIcon
+                :class="$style.homeworkIcon"
+                name="file"
+                size="large"
+                tile
+                :stroke-width="1.7"
+            />
 
             <span :class="$style.homeworkInfo">
                 <span :class="$style.homeworkInfoContainer">
@@ -56,12 +60,12 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
             >
                 Готово
             </AppButton>
-            <span
+            <VStatusBadge
                 v-if="done(item)"
-                :class="[$style.status, $style.paid]"
-            >
-                Выполнено
-            </span>
+                status="done"
+                tone="paid"
+                label="Выполнено"
+            />
         </span>
     </div>
 </template>
@@ -169,30 +173,6 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
 }
 
 
-.homeworkIcon {
-    width: $width-block-big;
-    height: $height-block-big;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    background: var(--purple-pale);
-    color: var(--purple);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-    }
-
-    svg {
-        width: $svg;
-        height: $svg;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.7;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-}
 
 .homeworkInfo {
     min-width: 0;
@@ -267,15 +247,6 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
     align-items: center;
     gap: 8px;
 
-    .status {
-        padding: 1px 4px;
-        width: fit-content;
-        font-weight: 400;
-        white-space: nowrap;
-
-        @include text(px3);
-    }
-
     button {
         min-height: 0 !important;
     }
@@ -298,12 +269,6 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
         align-items: start;
         padding: 0;
     }
-    .homeworkActions .status {
-        padding: 1px 4px;
-        width: fit-content;
-
-        @include text(px3);
-    }
     .homeworkIcon {
         align-self: start;
     }
@@ -321,42 +286,5 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
         }
     }
 
-    .status {
-        &.paid {
-            color: var(--green);
-            background: color-mix(in srgb, var(--green) 10%, var(--surface));
-        }
-    }
-
-    .homeworkIcon {
-        color: $dark-purple-dark;
-        background: $dark-purple-pale;
-    }
-}
-
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    width: fit-content;
-    padding: 1px 4px;
-    border-radius: $radius;
-    font-weight: 400;
-    white-space: nowrap;
-
-    @include text(px3);
-
-    &:before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    &.paid {
-        color: var(--green);
-        background: color-mix(in srgb, var(--green) 10%, var(--surface));
-    }
 }
 </style>

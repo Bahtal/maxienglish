@@ -5,10 +5,12 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 import AppButton from '../AppButton.vue';
 import CustomSelect from '../CustomSelect.vue';
 
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton, CustomSelect },
+  components: { AppButton, CustomSelect, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
     const selectedStudentId = ref(
@@ -113,7 +115,7 @@ export default {
                 name="attachment"
                 type="file" />
         </label>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 type="submit"
                 :loading="modal.busy"
@@ -121,7 +123,7 @@ export default {
             <AppButton
                 variant="ghost"
                 @click="closeModal">Отмена</AppButton>
-        </div>
+        </VModalActions>
     </form>
 </template>
 

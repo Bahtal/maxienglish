@@ -1,9 +1,13 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VAvatar from '../VAvatar.vue';
+import VIcon from '../VIcon.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VAvatar, VIcon },
     setup(props, { emit }) {
         return useWorkspaceView(props, emit);
     },
@@ -28,24 +32,22 @@ export default {
                 :class="[$style.navItem, { [$style.active]: state.page === item.page || (state.page === 'students' && item.page === 'home') }]"
                 @click="go(item.page)"
             >
-                <span :class="$style.navIcon">
-                    <svg>
-                        <use :href="`#icon-${item.icon}`" />
-                    </svg>
-                </span>
+                <VIcon
+                    :name="item.icon"
+                    size="nav"
+                />
                 <span>{{ item.label }}</span>
             </button>
         </nav>
         <div :class="$style.sidebarBottom">
             <div :class="$style.profileMini">
-                <span :class="[$style.avatar, $style[colorFor(activeProfile.color)]]">
-                    <img
-                        v-if="activeProfile.avatarUrl"
-                        :src="activeProfile.avatarUrl"
-                        alt=""
-                    />
-                    <template v-else>{{ initials(activeProfile.name) }}</template>
-                </span>
+                <VAvatar
+                    size="small"
+                    :tone="colorFor(activeProfile.color)"
+                    radius="mini"
+                    :src="activeProfile.avatarUrl"
+                    :name="activeProfile.name"
+                />
                 <span :class="$style.profileMeta">
                     <b>{{ activeProfile.name }}</b>
                     <small>{{ activeProfile.caption }}</small>
@@ -63,42 +65,6 @@ export default {
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: $width-block;
-    height: $height-block;
-    flex: 0 0 $width-block;
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border-radius: $radius-mini;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-
-    > img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        object-fit: cover;
-    }
-
-    &.purple {
-        background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    }
-
-    &.mint {
-        background: linear-gradient(140deg, var(--mint), var(--green));
-    }
-
-    &.blue {
-        background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    }
-}
-
 .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
@@ -193,23 +159,6 @@ export default {
     &.active {
         color: var(--purple);
         background: var(--purple-pale);
-    }
-}
-
-.navIcon {
-    width: $svg;
-    height: $svg;
-    display: grid;
-    place-items: center;
-
-    svg {
-        width: $svg;
-        height: $svg;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
     }
 }
 

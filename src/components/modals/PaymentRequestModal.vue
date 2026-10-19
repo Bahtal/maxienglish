@@ -5,10 +5,14 @@ import { getStudentSingleLessonPrice } from '../../utils/studentPricing.js';
 
 import AppButton from '../AppButton.vue';
 
+import VEmptyState from '../VEmptyState.vue';
+
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VEmptyState, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
     view.activePlans = computed(() => props.workspace.state.subscriptionPlans.filter((plan) => plan.active));
@@ -50,14 +54,16 @@ export default {
                 <small>{{ plan.price.toLocaleString('ru-RU') }} ₽</small>
             </span>
         </label>
-        <div
+        <VEmptyState
             v-if="hasPendingPayment || !activePlans.length"
-            :class="$style.emptyState">
-            <b v-if="hasPendingPayment">Заявка на оплату уже ожидает подтверждения</b>
-            <b v-else-if="!state.subscriptionPlans.length">Абонементы пока не настроены</b>
-            <b v-else>Сейчас нет активных абонементов</b>
-        </div>
-        <div :class="$style.modalActions">
+            :class="$style.emptyState"
+            :title="hasPendingPayment
+                ? 'Заявка на оплату уже ожидает подтверждения'
+                : !state.subscriptionPlans.length
+                    ? 'Абонементы пока не настроены'
+                    : 'Сейчас нет активных абонементов'"
+        />
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 type="submit"
                 :loading="modal.busy"
@@ -65,7 +71,7 @@ export default {
             <AppButton
                 variant="ghost"
                 @click="closeModal">Отмена</AppButton>
-        </div>
+        </VModalActions>
     </form>
 </template>
 

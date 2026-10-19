@@ -2,11 +2,15 @@
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
+import VAvatar from '../VAvatar.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
+import VSectionHeader from '../VSectionHeader.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VAvatar, VStatusBadge, VSectionHeader },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -14,21 +18,31 @@ export default {
 <template>
     <section
         v-if="state.payments.some((payment) => payment.status === 'awaiting')"
-        :class="[$style.card, $style.sectionCard, $style.paymentRequests]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Заявки на оплату</h2>
-                <p>Проверьте поступление и подтвердите абонементы</p>
-            </div>
-            <span
-                :class="[$style.status, $style.pending]">{{ state.payments.filter((payment) => payment.status === 'awaiting').length }} ожидают</span>
-        </div>
+        :class="[$style.sectionCard, $style.paymentRequests]">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Заявки на оплату"
+            description="Проверьте поступление и подтвердите абонементы"
+        >
+            <template #aside>
+                <VStatusBadge
+                    status="awaiting"
+                    tone="pending"
+                    strong
+                    :label="`${state.payments.filter((payment) => payment.status === 'awaiting').length} ожидают`"
+                />
+            </template>
+        </VSectionHeader>
         <div
             v-for="payment in state.payments.filter((entry) => entry.status === 'awaiting')"
             :key="payment.id"
             :class="[$style.paymentRow, $style.paymentRequestRow]">
             <span :class="$style.paymentLabel">
-                <span :class="$style.avatar">{{ initials(studentById(payment.studentId)?.name) }}</span>
+                <VAvatar
+                    size="medium"
+                    radius="default"
+                    :name="studentById(payment.studentId)?.name || ''"
+                />
                 <span>{{ studentById(payment.studentId)?.name }} · {{ payment.lessons }} занятий · {{ payment.date }}</span>
             </span>
             <AppButton
@@ -45,27 +59,6 @@ export default {
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    display: grid;
-    place-items: center;
-    border-radius: $radius;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-}
-
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionCard {
     padding: $padding;
 
@@ -89,7 +82,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -97,32 +94,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    width: fit-content;
-    padding: 1px 4px;
-    border-radius: $radius;
-    font-weight: 400;
-    white-space: nowrap;
-
-    @include text(px3);
-
-    &:before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    &.pending {
-        color: var(--amber);
-        background: color-mix(in srgb, var(--amber) 14%, var(--surface));
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -133,13 +108,6 @@ export default {
         flex: 0 0 $svg;
         stroke: currentColor;
         fill: none;
-    }
-}
-
-[data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
     }
 }
 
@@ -204,13 +172,6 @@ export default {
 [data-theme=darked] {
     .paymentRow {
         color: var(--ink);
-    }
-
-    .status {
-        &.pending {
-            color: var(--amber);
-            background: color-mix(in srgb, var(--amber) 20%, var(--surface));
-        }
     }
 
     .paymentLabel {

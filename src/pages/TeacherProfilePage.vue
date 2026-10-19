@@ -15,19 +15,36 @@ export default {
 
 <template>
     <div :class="$style.teacherProfilePage">
-        <TeacherProfileOverview :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
-        <TeacherLessonHistory :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
-        <TeacherSettingsPanel :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <TeacherProfileOverview :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <TeacherLessonHistory :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <TeacherSettingsPanel :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
     </div>
 </template>
 
 <style lang="scss" module>
 .teacherProfilePage {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
     gap: $gap;
 
     @include respond-to(mobile) {
         gap: $gap-sm;
+    }
+}
+
+.board {
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: $radius;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+[data-theme='darked'] {
+    .board {
+        border-color: var(--line);
+        background: var(--surface);
     }
 }
 </style>

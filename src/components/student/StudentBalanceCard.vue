@@ -122,6 +122,12 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
+
+    button[data-variant=white] {
+        background: transparent !important;
+        border: 1px solid var(--ink);
+        backdrop-filter: blur(3px);
+    }
 }
 .balanceKicker {
     margin: 0 0 17px;

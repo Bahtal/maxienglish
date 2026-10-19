@@ -14,12 +14,20 @@ export default {
 
 <template>
     <div :class="$style.calendarLayout">
-        <CalendarMonth :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
-        <CalendarAgenda :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <CalendarMonth :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <CalendarAgenda :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
     </div>
 </template>
 
 <style lang="scss" module>
+.board {
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: $radius;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
 .calendarLayout {
     display: grid;
     min-width: 0;
@@ -28,6 +36,13 @@ export default {
 
     > * {
         min-width: 0;
+    }
+}
+
+[data-theme='darked'] {
+    .board {
+        border-color: var(--line);
+        background: var(--surface);
     }
 }
 

@@ -1,24 +1,27 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VAvatar from '../VAvatar.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VAvatar },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.teacherProfileOverview]">
+    <section :class="$style.teacherProfileOverview">
         <div :class="$style.teacherProfileIdentity">
-            <span :class="[$style.avatar, $style.teacherProfileAvatar]">
-                <img
-                    v-if="state.teacher.avatarUrl"
-                    :src="state.teacher.avatarUrl"
-                    alt="" />
-                <template
-                    v-else>{{ initials(state.teacher.name) }}</template>
-            </span>
+            <VAvatar
+                size="large"
+                responsive
+                radius="default"
+                mobile-radius="micro"
+                :src="state.teacher.avatarUrl"
+                :name="state.teacher.name"
+            />
             <div :class="$style.teacherProfileIdentityCopy">
                 <h2>{{ state.teacher.name }}</h2>
                 <p>{{ state.teacher.experience ? `Стаж ${state.teacher.experience}` : 'Стаж не указан' }}</p>
@@ -62,37 +65,6 @@ export default {
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border-radius: $radius;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-        flex: 0 0 $width-block;
-        border-radius: $radius-micro;
-    }
-
-    > img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        object-fit: cover;
-    }
-}
-
 .card {
     border: 1px solid var(--border-color);
     background: var(--surface);
@@ -128,28 +100,17 @@ export default {
     }
 }
 
-.teacherProfileAvatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex-basis: $width-block-big;
-    border-radius: $radius;
-
-    @include text(px2);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-        flex-basis: $width-block;
-        border-radius: $radius-micro;
-    }
-}
-
 .teacherProfileIdentityCopy {
     min-width: 0;
 
     h2 {
         margin: 0;
-        font-size: 19px;
+
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -157,12 +118,20 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     span {
         color: var(--purple);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 

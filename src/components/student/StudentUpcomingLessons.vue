@@ -1,166 +1,179 @@
-<script>
+<script setup>
+import { computed } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
+import VEmptyState from '../VEmptyState.vue';
+import StudentHomeSection from './StudentHomeSection.vue';
 
-export default {
-  props: { workspace: { type: Object, required: true } },
-  emits: ['workspace-action'],
-  setup(props, { emit }) { return useWorkspaceView(props, emit); },
-};
+const props = defineProps({
+    workspace: {
+        type: Object,
+        required: true,
+    },
+});
+
+const emit = defineEmits(['workspace-action']);
+const workspace = useWorkspaceView(props, emit);
+
+const studentLessons = computed(() => workspace.visibleLessons.value
+    .filter((lesson) => lesson.studentId === workspace.state.studentUser.id));
+const nextLesson = computed(() => studentLessons.value[0] || null);
+const laterLessons = computed(() => studentLessons.value.slice(1, 3));
+
+function monthLabel(date) {
+    return new Intl.DateTimeFormat('ru-RU', { month: 'short' })
+        .format(workspace.dateObject(date))
+        .replace(/\.$/, '');
+}
+
+function openCalendar() {
+    workspace.go('calendar');
+}
+
+function openLesson(lesson) {
+    workspace.openLesson(lesson);
+}
 </script>
 
 <template>
-    <section :class="[$style.card, $style.sectionCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Ближайшие занятия</h2>
-                <p>Ваше расписание на ближайшее время</p>
-            </div>
-
-            <button
-                :class="$style.textLink"
-                @click="go('calendar')"
-            >
-                &#32;Весь календарь&#32;&#32;
-                <svg>
-                    <use href="#icon-arrow" />
-                </svg>
-            </button>
-        </div>
-
+    <StudentHomeSection
+        title="Ближайшие занятия"
+        description="Ваше расписание на ближайшее время"
+        action-label="Весь календарь"
+        action-aria-label="Открыть весь календарь"
+        @action="openCalendar"
+    >
         <div :class="$style.lessonList">
             <button
-                v-for="lesson in visibleLessons.filter((item) => item.studentId === state.studentUser.id).slice(0,3)"
+                v-if="nextLesson"
+                :class="$style.featuredLesson"
+                type="button"
+                aria-label="Открыть ближайшее занятие"
+                @click="openLesson(nextLesson)"
+            >
+                <span :class="$style.featuredDate" aria-hidden="true">
+                    <span>{{ workspace.cap(workspace.formatWeekday(nextLesson.date, true)) }}</span>
+                    <strong>{{ workspace.dateObject(nextLesson.date).getDate() }}</strong>
+                    <small>{{ monthLabel(nextLesson.date) }}</small>
+                </span>
+
+                <span :class="$style.featuredCopy">
+                    <strong>{{ nextLesson.title || 'Английский' }}</strong>
+                    <span>{{ workspace.state.teacher.name }} · {{ nextLesson.durationMinutes }} мин</span>
+                </span>
+
+                <time
+                    :class="$style.featuredTime"
+                    :datetime="workspace.dateTimeIso(nextLesson.date, nextLesson.time)"
+                >
+                    {{ nextLesson.time }}
+                </time>
+            </button>
+
+            <button
+                v-for="lesson in laterLessons"
                 :key="lesson.id"
                 :class="$style.lessonRow"
+                type="button"
                 @click="openLesson(lesson)"
             >
                 <span :class="$style.dateBlock">
-                    <b>{{ dateObject(lesson.date).getDate() }}</b>
-                    <small>{{ formatWeekday(lesson.date, true) }}</small>
+                    <b>{{ workspace.dateObject(lesson.date).getDate() }}</b>
+                    <small>{{ workspace.formatWeekday(lesson.date, true) }}</small>
                 </span>
 
                 <span :class="$style.lessonInfo">
                     <b>{{ lesson.title || 'Английский' }}</b>
-                    <small>{{ cap(formatDay(lesson.date)) }} · {{ lesson.durationMinutes }} мин</small>
+                    <small>{{ workspace.cap(workspace.formatDay(lesson.date)) }} · {{ lesson.durationMinutes }} мин</small>
                 </span>
 
                 <span :class="$style.lessonTime">{{ lesson.time }}</span>
             </button>
 
-            <div
-                v-if="!visibleLessons.filter((item) => item.studentId === state.studentUser.id).length"
+            <VEmptyState
+                v-if="!studentLessons.length"
                 :class="$style.emptyState"
-            >
-                <b>Пока нет занятий</b>
-                <span>Когда появится запись, она будет здесь.</span>
-            </div>
+                title="Пока нет занятий"
+                description="Когда появится запись, она будет здесь."
+            />
         </div>
-    </section>
+    </StudentHomeSection>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
-.sectionCard {
-    padding: $padding;
-
-    @include respond-to(mobile) {
-        padding: $padding-mobile;
-    }
-}
-
-.sectionHeading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: $gap;
-    margin-bottom: 8px;
-
-    @include respond-to(mobile) {
-        gap: $gap-sm;
-    }
-
-    h2 {
-        margin: 0;
-        font-weight: 700;
-
-        @include text(px2);
-    }
-
-    p {
-        margin: 4px 0 0;
-        color: var(--muted);
-
-        @include text(px2);
-    }
-
-    & > svg {
-        width: $svg;
-        height: $svg;
-        flex: 0 0 $svg;
-        stroke: currentColor;
-        fill: none;
-    }
-}
-
-.textLink {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 4px 0;
-    border: 0;
-    color: var(--purple) !important;
-    background: $transparent;
-    font-size: 10px !important;
-    font-weight: 500 !important;
-    cursor: pointer;
-    white-space: nowrap;
-
-    svg {
-        width: 14px;
-        height: 14px;
-        transform: rotate(0deg);
-        fill: currentColor;
-        transition: all .3s ease;
-    }
-
-    &:hover {
-        svg {
-            transform: rotate(0deg) translateX(3px);
-        }
-    }
-}
-
-.emptyState {
-    padding: 0 $padding;
-
-    text-align: center;
-    color: var(--muted);
-
-    @include text(px2);
-
-    b {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--ink);
-        font-weight: 700;
-
-        @include text(px2);
-    }
-
-    @include respond-to(mobile) {
-        padding: 0 $padding-mobile;
-    }
-}
-
 .lessonList {
     display: grid;
+}
+
+.featuredLesson {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    border-radius: $radius-mini;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.featuredDate {
+    display: grid;
+    justify-items: center;
+    gap: 1px;
+    padding-right: 12px;
+    border-right: 1px solid var(--border-color);
+    color: var(--purple);
+    font-size: 11px;
+    line-height: 1.2;
+    text-transform: lowercase;
+
+    strong {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1.05;
+        font-variant-numeric: tabular-nums;
+    }
+
+    small {
+        font-size: 11px;
+    }
+}
+
+.featuredCopy {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+
+    strong {
+        overflow: hidden;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.35;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    span {
+        overflow: hidden;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.featuredTime {
+    color: var(--purple);
+    font-size: 20px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 .lessonRow {
@@ -200,13 +213,13 @@ export default {
 }
 
 .dateBlock {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
     display: flex;
+    flex: 0 0 $width-block-big;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: $width-block-big;
+    height: $height-block-big;
     border-radius: $radius-mini;
     color: var(--purple);
     background: var(--purple-pale);
@@ -232,22 +245,22 @@ export default {
 }
 
 .lessonInfo {
-    min-width: 0;
     flex: 1;
+    min-width: 0;
 
-    b {
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-size: 12px;
-    }
-
+    b,
     small {
         display: block;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    b {
+        font-size: 12px;
+    }
+
+    small {
         color: var(--muted);
         font-size: 10px;
     }
@@ -261,15 +274,33 @@ export default {
     white-space: nowrap;
 }
 
-[data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
+.emptyState {
+    padding: 0 $padding;
+    color: var(--muted);
+    text-align: center;
+
+    @include text(px2);
+
+    b {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--ink);
+        font-weight: 700;
+
+        @include text(px2);
     }
 
-    .emptyState {
-        b {
-            color: var(--ink);
+    @include respond-to(mobile) {
+        padding: 0 $padding-mobile;
+    }
+}
+
+[data-theme='darked'] {
+    .featuredDate {
+        color: $dark-purple-dark;
+
+        small {
+            color: var(--muted);
         }
     }
 
@@ -285,5 +316,35 @@ export default {
     .lessonTime {
         color: var(--muted);
     }
+}
+
+@include respond-to(mobile) {
+    .featuredLesson {
+        grid-template-columns: 52px minmax(0, 1fr) auto;
+        gap: $gap-sm;
+    }
+
+    .featuredDate {
+        padding-right: 8px;
+
+        strong {
+            font-size: 25px;
+        }
+    }
+
+    .featuredCopy {
+        strong {
+            font-size: 14px;
+        }
+
+        span {
+            font-size: 12px;
+        }
+    }
+
+    .featuredTime {
+        font-size: 17px;
+    }
+
 }
 </style>

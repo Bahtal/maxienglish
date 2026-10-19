@@ -1,9 +1,13 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VEmptyState from '../VEmptyState.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VEmptyState, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -15,14 +19,19 @@ export default {
             :key="payment.id"
             :class="$style.historyRow">
             <span>{{ payment.date }} · {{ payment.lessons }} занятий</span>
-            <span>{{ payment.status==='awaiting'?'Заявка':statusLabel(payment.status) }}</span>
+            <VStatusBadge
+                :status="payment.status"
+                :tone="payment.status"
+                variant="text"
+                :label="payment.status === 'awaiting' ? 'Заявка' : statusLabel(payment.status)"
+            />
         </div>
-        <div
-            v-if="!state.payments.some((item)=>item.studentId===state.studentUser.id)"
-            :class="$style.emptyState">
-            <b>Оплат пока нет</b>
-            <span>Предыдущие оплаты будут отображаться здесь.</span>
-        </div>
+        <VEmptyState
+            v-if="!state.payments.some((item) => item.studentId === state.studentUser.id)"
+            :class="$style.emptyState"
+            title="Оплат пока нет"
+            description="Предыдущие оплаты будут отображаться здесь."
+        />
     </div>
 </template>
 
@@ -61,9 +70,6 @@ export default {
         border: 0;
     }
 
-    span:last-child {
-        color: var(--muted);
-    }
 }
 
 [data-theme=darked] {

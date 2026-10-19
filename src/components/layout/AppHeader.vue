@@ -1,6 +1,7 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VAvatar from '../VAvatar.vue';
 import SegmentedToggle from '../SegmentedToggle.vue';
 import NotificationPopover from './NotificationPopover.vue';
 
@@ -15,6 +16,7 @@ export default {
   emits: ['workspace-action'],
 
   components: {
+      VAvatar,
       SegmentedToggle,
       NotificationPopover,
   },
@@ -92,15 +94,16 @@ export default {
             </Transition>
         </div>
 
-        <span :class="[$style.avatar, $style.topAvatar, $style[colorFor(activeProfile.color)]]">
-        <img
-            v-if="activeProfile.avatarUrl"
+        <VAvatar
+            :class="[$style.avatar, $style.topAvatar]"
+            size="large"
+            responsive
+            :tone="colorFor(activeProfile.color)"
+            radius="mini"
             :src="activeProfile.avatarUrl"
+            :name="activeProfile.name"
             alt="AvatarProfile"
         />
-
-        <template v-else>{{ initials(activeProfile.name) }}</template>
-    </span>
     </div>
 </header>
 </template>
@@ -215,14 +218,7 @@ export default {
     border-radius: 50%;
 }
 .topAvatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    border-radius: $radius-mini;
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-    }
+    --module-placeholder: 0;
 }
 .mobileBrand {
   display: none;
@@ -299,50 +295,8 @@ export default {
     position: relative;
 }
 .avatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border-radius: $radius-mini;
     color: var(--surface);
     font-weight: 300;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-
-    @include text(px2);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-        flex: 0 0 $width-block;
-    }
-
-    > img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        object-fit: cover;
-    }
-
-    &.purple {
-        background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    }
-
-    &.mint {
-        background: linear-gradient(140deg, var(--mint), var(--green));
-    }
-
-    &.blue {
-        background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    }
-}
-
-.mint {
-    color: var(--green);
-    background: var(--mint);
 }
 
 [data-theme=darked] {
@@ -362,10 +316,6 @@ export default {
         color: var(--ink);
     }
 
-    .mint {
-        color: var(--green);
-        background: $dark-mint;
-    }
 }
 
 .headerRight {

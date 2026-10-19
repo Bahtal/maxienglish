@@ -24,7 +24,7 @@ export default {
 </script>
 
 <template>
-    <section :class="[$style.card, $style.calendarCard]">
+    <section :class="$style.calendarCard">
         <div :class="$style.monthHead">
             <strong>{{ monthLabel }}</strong>
             <span :class="$style.monthControls">
@@ -135,7 +135,7 @@ export default {
 .calendarGrid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: $grid-gap;
 }
 
 .calendarDays {
@@ -271,19 +271,7 @@ export default {
     }
 }
 
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: 19px;
-    box-shadow: var(--shadow);
-}
-
 [data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .monthControls {
         button {
             color: var(--ink);

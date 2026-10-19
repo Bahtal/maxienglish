@@ -698,6 +698,10 @@ onBeforeUnmount(() => {
         font-weight: 700;
 
         @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 }
 

@@ -3,42 +3,52 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
 import SegmentedToggle from '../SegmentedToggle.vue';
+import VAvatar from '../VAvatar.vue';
+
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VStatusBadge from '../VStatusBadge.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton, SegmentedToggle },
+  components: { AppButton, SegmentedToggle, VAvatar, VSectionHeader, VEmptyState, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.teacherSchedule]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Расписание занятий</h2>
-                <p>{{ upcomingLessons.length }} занятий запланировано</p>
-            </div>
-            <div :class="$style.scheduleHeadingActions">
-                <AppButton
-                    size="small"
-                    @click="openLessonForm()">
-                    <svg>
-                        <use href="#icon-plus" />
-                    </svg>
-                    &#32;&#32;Добавить урок&#32;
-                </AppButton>
-                <AppButton
-                    variant="secondary"
-                    size="small"
-                    @click="openStudentForm">
-                    <svg>
-                        <use href="#icon-plus" />
-                    </svg>
-                    &#32;&#32;Добавить ученика&#32;
-                </AppButton>
-            </div>
-        </div>
+    <section :class="$style.teacherSchedule">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Расписание занятий"
+            :description="`Запланировано ${upcomingLessons.length} ${humanCount(upcomingLessons.length, 'занятие', 'занятия', 'занятий')}`"
+        >
+            <template #aside>
+                <div :class="$style.scheduleHeadingActions">
+                    <AppButton
+                        size="small"
+                        @click="openLessonForm()"
+                    >
+                        <svg>
+                            <use href="#icon-plus" />
+                        </svg>
+                        &#32;&#32;Добавить урок&#32;
+                    </AppButton>
+                    <AppButton
+                        variant="secondary"
+                        size="small"
+                        @click="openStudentForm"
+                    >
+                        <svg>
+                            <use href="#icon-plus" />
+                        </svg>
+                        &#32;&#32;Добавить ученика&#32;
+                    </AppButton>
+                </div>
+            </template>
+        </VSectionHeader>
         <div :class="$style.filterRow">
             <SegmentedToggle
                 :model-value="state.selectedFilter"
@@ -46,18 +56,6 @@ export default {
                 aria-label="Фильтр занятий по дню недели"
                 @update:model-value="setSelectedFilter"
             />
-
-            <AppButton
-                variant="outline"
-                size="small"
-                :class="$style.calendarAction"
-                @click="go('calendar')"
-            >
-                <svg>
-                    <use href="#icon-calendar" />
-                </svg>
-                &#32;&#32;Открыть весь календарь&#32;
-            </AppButton>
         </div>
         <div :class="$style.scheduleList">
             <button
@@ -70,9 +68,15 @@ export default {
                     {{ cap(formatWeekday(lesson.date, true)) }}{{ dateObject(lesson.date).getDate() }}
                 </span>
                 <span :class="$style.scheduleCenter">
-                     <span :class="[$style.avatar, $style[colorFor(studentById(lesson.studentId)?.color)]]">
-                         {{ initials(studentById(lesson.studentId)?.name) }}
-                     </span>
+                    <VAvatar
+                        :class="$style.avatar"
+                        size="large"
+                        responsive
+                        :tone="colorFor(studentById(lesson.studentId)?.color)"
+                        radius="mini"
+                        dark-text
+                        :name="studentById(lesson.studentId)?.name || ''"
+                    />
 
                      <span :class="$style.schedulePerson">
                         <b @click.stop="openStudent(studentById(lesson.studentId))">
@@ -80,7 +84,11 @@ export default {
                         </b>
                          <span :class="$style.schedulePersonBottom">
                              <span :class="$style.scheduleDetail">{{ formatWeekday(lesson.date) }} · {{ lesson.time }}</span>
-                             <span :class="[$style.status, $style[statusClass(lesson.status)]]">{{ statusLabel(lesson.status) }}</span>
+                            <VStatusBadge
+                                :status="lesson.status"
+                                :tone="statusClass(lesson.status)"
+                                :label="statusLabel(lesson.status)"
+                            />
                          </span>
                     </span>
 
@@ -88,48 +96,17 @@ export default {
                 <span :class="$style.lessonCount">{{ studentById(lesson.studentId)?.paidLessons || 0 }}</span>
             </button>
 
-            <div
+            <VEmptyState
                 v-if="!filteredTeacherLessons.length"
                 :class="$style.emptyState"
-            >
-                <b>На этот день занятий нет</b>
-                <span>Выберите другой день или откройте календарь.</span>
-            </div>
+                title="На этот день занятий нет"
+                description="Выберите другой день или откройте календарь."
+            />
         </div>
     </section>
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-
-    &.purple,
-    &.blue {
-        background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    }
-
-    &.mint {
-        background: linear-gradient(140deg, var(--mint), var(--green));
-    }
-}
-
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionHeading {
     display: flex;
     align-items: flex-start;
@@ -145,7 +122,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -153,42 +134,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    width: fit-content;
-    padding: 1px 4px;
-    border-radius: $radius;
-    font-weight: 400;
-    white-space: nowrap;
-
-    @include text(px3);
-
-    &:before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    &.unpaid {
-        color: var(--red);
-        background: color-mix(in srgb, var(--red) 10%, var(--surface));
-    }
-
-    &.paid {
-        color: var(--green);
-        background: color-mix(in srgb, var(--green) 10%, var(--surface));
-    }
-
-    &.pending {
-        color: var(--amber);
-        background: color-mix(in srgb, var(--amber) 14%, var(--surface));
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -224,35 +173,12 @@ export default {
 }
 
 [data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .emptyState {
         b {
             color: var(--ink);
         }
     }
 
-    .status {
-        &.unpaid {
-            color: var(--red);
-            background: color-mix(in srgb, var(--red) 20%, var(--surface));
-        }
-    }
-}
-
-.mint {
-    color: var(--green);
-    background: var(--mint);
-}
-
-[data-theme=darked] {
-    .mint {
-        color: var(--green);
-        background: $dark-mint;
-    }
 }
 
 .filterRow {
@@ -370,10 +296,6 @@ export default {
     }
 
     .avatar {
-        width: $width-block-big;
-        height: $height-block-big;
-        flex-basis: $width-block-big;
-        border-radius: $radius-mini;
         font-size: 10px;
     }
 
@@ -413,14 +335,6 @@ export default {
 }
 
 @include respond-to(mobile) {
-    .avatar {
-        width: $width-block;
-        height: $height-block;
-        flex-basis: $height-block;
-
-        @include text(px2);
-    }
-
     .teacherSchedule {
         padding: $padding-mobile;
     }
@@ -430,20 +344,10 @@ export default {
         gap: 8px;
         padding: 8px 0;
 
-        .status {
-            padding: 1px 4px;
-            width: fit-content;
-
-            @include text(px3);
-        }
     }
 
     .schedulePerson {
         .avatar {
-            width: $width-block;
-            height: $height-block;
-            flex-basis: $height-block;
-
             @include text(px2);
         }
 
@@ -469,7 +373,11 @@ export default {
 @include respond-to(mobile) {
     .scheduleHeadingActions {
         width: 100%;
-        justify-content: flex-start;
+        justify-content: space-between;
+
+        button {
+            width: calc(50% - 4px);
+        }
     }
 
     .teacherSchedule {
@@ -499,10 +407,6 @@ export default {
         color: var(--muted);
     }
 
-    .avatar {
-        color: var(--canvas);
-    }
-
     .scheduleHeadingActions {
         button[data-variant=primary] {
             color: var(--canvas);
@@ -514,7 +418,4 @@ export default {
     --module-placeholder: 0;
 }
 
-.pending {
-    --module-placeholder: 0;
-}
 </style>

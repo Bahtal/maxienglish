@@ -3,11 +3,15 @@ import { computed, reactive, watch } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
+import VAvatar from '../VAvatar.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
+import VModalActions from '../VModalActions.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VAvatar, VStatusBadge, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
     const studentPricing = reactive({ singleLessonPrice: '', plans: [] });
@@ -39,14 +43,16 @@ export default {
 <template>
     <div :class="$style.studentDetail">
         <div :class="$style.modalProfile">
-            <span :class="[$style.avatar, $style[colorFor(modal.data.color)]]">
-                <img
-                    v-if="modal.data.avatarUrl"
-                    :src="modal.data.avatarUrl"
-                    alt="" />
-                <template
-                    v-else>{{ initials(modal.data.name) }}</template>
-            </span>
+            <VAvatar
+                :class="$style.avatar"
+                size="large"
+                responsive
+                :tone="colorFor(modal.data.color)"
+                radius="default"
+                mobile-radius="micro"
+                :src="modal.data.avatarUrl"
+                :name="modal.data.name"
+            />
             <span>
                 <b>{{ modal.data.name }}</b>
                 <small>{{ modal.data.username ? `@${modal.data.username}` : 'Telegram username не указан' }}</small>
@@ -58,7 +64,12 @@ export default {
                 <small>оплачено занятий</small>
             </div>
             <div :class="$style.detailStat">
-                <b>{{ statusLabel(modal.data.paymentStatus) }}</b>
+                <VStatusBadge
+                    :status="modal.data.paymentStatus"
+                    :tone="statusClass(modal.data.paymentStatus)"
+                    variant="value"
+                    :label="statusLabel(modal.data.paymentStatus)"
+                />
                 <small>статус оплаты</small>
             </div>
         </div>
@@ -165,9 +176,14 @@ export default {
             :key="`${item.date}-${item.time}`"
             :class="$style.historyRow">
             <span>{{ cap(formatDay(item.date)) }} · {{ item.time }}</span>
-            <span>{{ item.status }}</span>
+            <VStatusBadge
+                :status="item.status"
+                tone="muted"
+                variant="text"
+                :label="item.status"
+            />
         </div>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 v-if="state.role === 'teacher' && auth.user && !modal.data.telegramId && !modal.data.authUserId"
                 variant="secondary"
@@ -185,44 +201,11 @@ export default {
             <AppButton
                 variant="ghost"
                 @click="closeModal">Закрыть</AppButton>
-        </div>
+        </VModalActions>
     </div>
 </template>
 
 <style lang="scss" module>
-.avatar {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-    border-radius: $radius;
-    color: $white;
-    background: linear-gradient(140deg, var(--amber), var(--red));
-    font-weight: 700;
-
-    @include text(px2);
-
-    > img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        object-fit: cover;
-    }
-
-    &.purple,
-    &.blue {
-        background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    }
-
-    &.mint {
-        background: linear-gradient(140deg, var(--mint), var(--green));
-    }
-}
-
 .historyRow {
     display: flex;
     align-items: center;
@@ -231,24 +214,14 @@ export default {
     padding: 8px 0;
     border-bottom: 1px solid var(--line);
     font-size: 10px;
-}
 
-.historyRow {
     &:last-child {
         border: 0;
-    }
-
-    span:last-child {
-        color: var(--muted);
     }
 }
 
 [data-theme=darked] {
     .historyRow {
-        span:last-child {
-            color: var(--ink);
-        }
-
         border-color: var(--line);
     }
 }
@@ -372,7 +345,7 @@ export default {
     gap: 8px;
     padding: 10px;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: $radius-mini;
     background: var(--surface);
 }
 
@@ -392,15 +365,12 @@ export default {
     gap: $gap-sm;
     margin-bottom: 16px;
     padding: $padding-mobile;
-    border-radius: 15px;
+    border-radius: $radius;
     background: var(--canvas);
 
     .avatar {
-        width: 48px;
-        height: 48px;
-        flex-basis: 48px;
-        border-radius: $radius;
-        font-size: 14px;
+        @include text(px1);
+        font-weight: 300;
     }
 
     > span:last-child {

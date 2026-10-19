@@ -1,40 +1,41 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VSectionHeader, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.sectionCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Домашние задания</h2>
-                <p>Статус выполненных и текущих заданий</p>
-            </div>
-        </div>
+    <section :class="$style.sectionCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Домашние задания"
+            description="Статус выполненных и текущих заданий"
+        />
         <div
             v-for="item in studentHomework"
             :key="item.id"
             :class="$style.historyRow"
         >
             <span>{{ item.title }}</span>
-            <span>{{ isDoneHomework(item) ? 'Выполнено' : 'В работе' }}</span>
+            <VStatusBadge
+                :status="isDoneHomework(item) ? 'done' : 'in-progress'"
+                tone="muted"
+                variant="text"
+                :label="isDoneHomework(item) ? 'Выполнено' : 'В работе'"
+            />
         </div>
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionCard {
     padding: $padding;
 
@@ -58,7 +59,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -66,6 +71,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 
     & > svg {
@@ -91,17 +100,9 @@ export default {
         padding-bottom: 0;
     }
 
-    span:last-child {
-        color: var(--muted);
-    }
 }
 
 [data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .historyRow {
         border-color: var(--line);
 

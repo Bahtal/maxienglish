@@ -16,13 +16,35 @@ export default {
 <template>
     <div :class="$style.teacherHomePage">
         <TeacherStatsCards :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
-        <TeacherSchedule :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
-        <TeacherHomeworkPreview :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <TeacherSchedule :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
+        <TeacherHomeworkPreview :class="$style.board" :workspace="workspace" @workspace-action="$emit('workspace-action', $event)" />
     </div>
 </template>
 
 <style lang="scss" module>
 .teacherHomePage {
-    --module-placeholder: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: $gap;
+
+    @include respond-to(mobile) {
+        gap: $gap-sm;
+    }
+}
+
+.board {
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: $radius;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+[data-theme='darked'] {
+    .board {
+        border-color: var(--line);
+        background: var(--surface);
+    }
 }
 </style>

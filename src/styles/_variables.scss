@@ -19,19 +19,31 @@ $breakpoints: (
     @if $name == px1 {
         font-size: 16px;
         line-height: 24px;
-        letter-spacing: -0.2;
+        letter-spacing: -0.2px;
+    }
+    
+    @if $name == px1_5 {
+        font-size: 14px;
+        line-height: 18px;
+        letter-spacing: -0.2px;
     }
     
     @if $name == px2 {
         font-size: 12px;
         line-height: 16px;
-        letter-spacing: -0.2;
+        letter-spacing: -0.2px;
     }
     
     @if $name == px3 {
         font-size: 10px;
         line-height: 12px;
-        letter-spacing: -0.2;
+        letter-spacing: -0.2px;
+    }
+    
+    @if $name == px4 {
+        font-size: 9px;
+        line-height: 11px;
+        letter-spacing: -0.2px;
     }
 }
 
@@ -90,17 +102,17 @@ $dark-green: #72d2b2;
 $dark-amber: #f2c46c;
 $dark-red: #f28a93;*/
 
-$white: #f1efeb;
+$white: #f8e6dd;
 $transparent: transparent;
 
-$ink: #404573;
-$border-color: #cacedd;
-$muted: #4873b1;
-$line: #cccfda;
+$ink: #242240;
 $surface: $white;
-$canvas: #ebe6db;
-$purple: #26378e;
-$purple-dark: #20355f;
+$canvas: $surface;
+$purple: #242240;
+$muted: rgba($purple, 0.8);
+$border-color: rgba($purple, 0.2);
+$line: rgba($purple, 0.2);
+$purple-dark: #282137;
 $purple-pale: #D0E6FD;
 $mint: #dff7ef;
 $green: #21896b;
@@ -109,15 +121,20 @@ $red: #d75c65;
 $calendar-blue: #347fd1;
 $calendar-purple: #8756c7;
 
-$dark-ink: #f8f4e5;
-$dark-border-color: #38447d;
+$color-1: #282137;
+$color-2: #f8e6dd;
+$color-3: #242240;
+
+
+$dark-surface: #242240;
+$dark-canvas: #282137;
+$dark-purple: #f8e6dd;
+$dark-purple-dark: #f8e6dd;
+$dark-purple-pale: #37336c;
+$dark-ink: #f8e6dd;
+$dark-border-color: rgba($dark-purple, 0.2);
 $dark-muted: #abc4ff;
-$dark-line: #38447d;
-$dark-surface: #002147;
-$dark-canvas: #0a1029;
-$dark-purple: #e7cfbd;
-$dark-purple-dark: #f0e1d1;
-$dark-purple-pale: #33569d;
+$dark-line: rgba($dark-purple, 0.2);
 $dark-mint: #173a34;
 $dark-green: #72d2b2;
 $dark-amber: #f2c46c;
@@ -126,6 +143,8 @@ $dark-red: #f28a93;
 $radius-micro: 8px;
 $radius-mini: 12px;
 $radius: 16px;
+$page-transition-duration: 300ms;
+$ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 $shadow: 0 14px 40px rgba($ink, 0.055);
 $dark-shadow: 0 16px 42px rgba($ink, 0.19);
 $font-family: 'Montserrat', sans-serif;
@@ -141,6 +160,7 @@ $padding-mobile: 10px;
 
 $gap: 16px;
 $gap-sm: 8px;
+$grid-gap: 4px;
 
 $svg: 20px;
 

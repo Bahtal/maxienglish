@@ -2,11 +2,13 @@
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
+import VIcon from '../VIcon.vue';
+import VStatusBadge from '../VStatusBadge.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VIcon, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -34,11 +36,13 @@ export default {
             :href="modal.data.fileData"
             :download="modal.data.filename"
         >
-            <span :class="$style.homeworkIcon">
-                <svg>
-                    <use href="#icon-file" />
-                </svg>
-            </span>
+            <VIcon
+                :class="$style.homeworkIcon"
+                name="file"
+                size="small"
+                tile
+                :stroke-width="1.7"
+            />
             <span>
                 <b>{{ modal.data.filename }}</b>
                 <small>Открыть или скачать материал</small>
@@ -46,7 +50,11 @@ export default {
             <span :class="$style.homeworkFileArrow">↗</span>
         </a>
         <div :class="$style.homeworkDetailFooter">
-            <span :class="[$style.status, $style[statusClass(isDoneHomework(modal.data) ? 'paid' : 'awaiting')]]">{{ isDoneHomework(modal.data) ? 'Выполнено' : 'Не выполнено' }}</span>
+            <VStatusBadge
+                :status="isDoneHomework(modal.data) ? 'done' : 'incomplete'"
+                :tone="isDoneHomework(modal.data) ? 'paid' : 'unpaid'"
+                :label="isDoneHomework(modal.data) ? 'Выполнено' : 'Не выполнено'"
+            />
             <AppButton
                 v-if="state.role === 'student' && !isDoneHomework(modal.data)"
                 variant="secondary"
@@ -69,46 +77,6 @@ export default {
 </template>
 
 <style lang="scss" module>
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    width: fit-content;
-    padding: 1px 4px;
-    border-radius: $radius;
-    font-weight: 400;
-    white-space: nowrap;
-
-    @include text(px3);
-
-    &:before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    &.unpaid {
-        color: var(--red);
-        background: color-mix(in srgb, var(--red) 10%, var(--surface));
-    }
-
-    &.paid {
-        color: var(--green);
-        background: color-mix(in srgb, var(--green) 10%, var(--surface));
-    }
-}
-
-[data-theme=darked] {
-    .status {
-        &.unpaid {
-            color: var(--red);
-            background: color-mix(in srgb, var(--red) 20%, var(--surface));
-        }
-    }
-}
-
 .detailSection {
     margin-top: 16px;
 
@@ -123,26 +91,6 @@ export default {
         margin: 0;
         line-height: 1.7;
         white-space: pre-wrap;
-    }
-}
-
-.homeworkIcon {
-    width: $width-block;
-    height: $height-block;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    background: var(--purple-pale);
-    color: var(--purple);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.7;
-        stroke-linecap: round;
-        stroke-linejoin: round;
     }
 }
 
@@ -296,21 +244,10 @@ export default {
         background-color: var(--surface);
     }
 
-    .status {
-        &.paid {
-            color: var(--green);
-            background: color-mix(in srgb, var(--green) 10%, var(--surface));
-        }
-    }
-
     .homeworkDetailFooter {
         border-color: var(--line);
     }
 
-    .homeworkIcon {
-        color: $dark-purple-dark;
-        background: $dark-purple-pale;
-    }
 }
 
 @include respond-to(mobile) {

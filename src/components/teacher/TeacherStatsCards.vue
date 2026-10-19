@@ -1,9 +1,11 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
+import VIcon from '../VIcon.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VIcon },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -16,11 +18,13 @@ export default {
             :class="[$style.card, $style.statCard, { [$style.interactive]: stat.clickable }]"
             @click="stat.clickable && go('students')"
         >
-             <span :class="$style.statIcon">
-                <svg>
-                    <use :href="`#icon-${stat.icon}`" />
-                </svg>
-            </span>
+            <VIcon
+                :class="$style.statIcon"
+                :name="stat.icon"
+                size="small"
+                tile
+                mobile-radius="micro"
+            />
 
             <div :class="$style.statCopy">
                 <b>{{ stat.value }}</b>
@@ -48,7 +52,6 @@ export default {
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-bottom: 16px;
     gap: $gap;
 
     @include respond-to(mobile) {
@@ -130,26 +133,10 @@ export default {
     position: absolute;
     top: 8px;
     right: 8px;
-    width: $width-block;
-    height: $height-block;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        stroke: currentColor;
-        fill: none;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
 
     @include respond-to(mobile) {
         position: static;
+        flex-shrink: 0;
     }
 }
 
@@ -163,7 +150,6 @@ export default {
     .statsGrid {
         grid-template-columns: none;
         gap: 4px;
-        margin-bottom: 16px;
     }
 
     .statCopy {
@@ -178,17 +164,6 @@ export default {
         }
     }
 
-    .statIcon {
-        flex-shrink: 0;
-        width: $width-block;
-        height: $height-block;
-        border-radius: $radius-micro;
-
-        svg {
-            width: $svg;
-            height: $svg;
-        }
-    }
 }
 
 @media (max-width: 450px) {

@@ -1,48 +1,47 @@
 <script>
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+import VNotificationItem from '../VNotificationItem.vue';
+import VIcon from '../VIcon.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VSectionHeader, VNotificationItem, VIcon },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.sectionCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>Напоминания</h2>
-                <p>Важное для ваших занятий</p>
-            </div>
-            <span :class="$style.icon">
-                <svg>
-                <use href="#icon-bell" />
-            </svg>
-            </span>
-        </div>
-        <div
+    <section :class="$style.sectionCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="Напоминания"
+            description="Важное для ваших занятий"
+        >
+            <template #aside>
+                <VIcon
+                    name="bell"
+                    tile
+                    size="small"
+                />
+            </template>
+        </VSectionHeader>
+        <VNotificationItem
             v-for="notice in state.notifications.filter((item) => item.role === 'student').slice(0,2)"
             :key="notice.id"
-            :class="$style.notificationItem">
-            <span :class="$style.noticeDot"></span>
-            <div>
-                <b>{{ notice.title }}</b>
-                <p>{{ notice.body }}</p>
-                <small>{{ notice.time }}</small>
-            </div>
-        </div>
+            as="article"
+            :class="$style.notificationItem"
+            :title="notice.title"
+            :body="notice.body"
+            :time="notice.time"
+            :dot-class="$style.noticeDot"
+        />
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
-}
-
 .sectionCard {
     padding: $padding;
 
@@ -62,30 +61,15 @@ export default {
         gap: $gap-sm;
     }
 
-    .icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: $width-block;
-        height: $width-block;
-        border-radius: $radius-mini;
-        background-color: var(--purple-pale);
-        color: var(--purple);
-
-        svg {
-            width: $svg;
-            height: $svg;
-            flex: 0 0 $svg;
-            stroke: currentColor;
-            fill: none;
-        }
-    }
-
     h2 {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -93,13 +77,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-[data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -139,15 +120,6 @@ export default {
         color: var(--muted);
         font-size: 8px;
     }
-}
-
-.noticeDot {
-    width: 8px;
-    height: 8px;
-    flex: 0 0 8px;
-    margin-top: 5px;
-    border-radius: 50%;
-    background: var(--purple);
 }
 
 [data-theme=darked] {

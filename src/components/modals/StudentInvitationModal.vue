@@ -3,10 +3,12 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
 
+import VModalActions from '../VModalActions.vue';
+
 export default {
     props: { workspace: { type: Object, required: true } },
     emits: ['workspace-action'],
-    components: { AppButton },
+    components: { AppButton, VModalActions },
     setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
@@ -36,7 +38,7 @@ export default {
             Ссылка действует 7 дней и привязывается к Telegram-аккаунту, который первым её активирует.
         </p>
 
-        <div :class="$style.actions">
+        <VModalActions :class="$style.actions">
             <AppButton
                 :class="$style.copyButton"
                 @click="copyText(modal.data?.inviteUrl || '', 'Ссылка-приглашение скопирована')">
@@ -45,7 +47,7 @@ export default {
             <AppButton
                 variant="ghost"
                 @click="closeModal">Закрыть</AppButton>
-        </div>
+        </VModalActions>
     </div>
 </template>
 

@@ -3,10 +3,12 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
 
+import VModalActions from '../VModalActions.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VModalActions },
   setup(props, { emit }) {
     return useWorkspaceView(props, emit);
   },
@@ -16,7 +18,7 @@ export default {
 <template>
     <div :class="$style.deletePastLesson">
         <p>Запись исчезнет из календаря и истории занятий. Остаток оплаченных занятий ученика не изменится.</p>
-        <div :class="$style.modalActions">
+        <VModalActions :class="$style.modalActions">
             <AppButton
                 variant="danger"
                 :loading="modal.busy"
@@ -29,7 +31,7 @@ export default {
                 @click="closeModal">
                 Не удалять
             </AppButton>
-        </div>
+        </VModalActions>
     </div>
 </template>
 

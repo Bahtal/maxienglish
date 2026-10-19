@@ -2,9 +2,18 @@
 import { computed } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VAvatar from '../VAvatar.vue';
+import VIcon from '../VIcon.vue';
+
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VPaymentHistoryRow from '../VPaymentHistoryRow.vue';
+
 export default {
     props: { workspace: { type: Object, required: true } },
     emits: ['workspace-action'],
+    components: { VAvatar, VIcon, VSectionHeader, VEmptyState, VPaymentHistoryRow },
     setup(props, { emit }) {
         const view = useWorkspaceView(props, emit);
         const payments = computed(() => props.workspace.state.payments);
@@ -15,53 +24,59 @@ export default {
 </script>
 
 <template>
-    <section :class="[$style.card, $style.historyCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>История оплат</h2>
-                <p>Заявки, подтверждения и суммы по ученикам</p>
-            </div>
-            <span :class="$style.statIcon">
-                <svg>
-                    <use href="#icon-wallet" />
-                </svg>
-            </span>
-        </div>
+    <section :class="$style.historyCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="История оплат"
+            description="Заявки, подтверждения и суммы по ученикам"
+        >
+            <template #aside>
+                <VIcon
+                    name="wallet"
+                    size="small"
+                    tile
+                />
+            </template>
+        </VSectionHeader>
 
         <div v-if="payments.length" :class="$style.paymentList">
-            <article
+            <VPaymentHistoryRow
                 v-for="payment in payments"
                 :key="payment.id"
-                :class="$style.paymentRow">
-                <span :class="$style.avatar">{{ initials(studentById(payment.studentId)?.name || '') }}</span>
-                <div :class="$style.paymentInfo">
-                    <b>{{ studentById(payment.studentId)?.name || 'Ученик' }}</b>
-                    <span>{{ payment.date }} · {{ payment.lessons }} {{ humanCount(payment.lessons, 'занятие', 'занятия', 'занятий') }}</span>
-                </div>
-                <div :class="$style.paymentMeta">
-                    <strong>{{ Number(payment.amount || 0).toLocaleString('ru-RU') }} ₽</strong>
-                    <span :class="[$style.status, $style[payment.status]]">
-                        {{ payment.status === 'awaiting' ? 'Ожидает' : payment.status === 'rejected' ? 'Отклонена' : 'Оплачено' }}
-                    </span>
-                </div>
-            </article>
+                :payment="payment"
+                :status-label="payment.status === 'awaiting' ? 'Ожидает' : payment.status === 'rejected' ? 'Отклонена' : 'Оплачено'"
+                :meta-class="$style.paymentMeta"
+                :class="$style.paymentRow"
+            >
+                <template #leading>
+                    <VAvatar
+                        size="large"
+                        responsive
+                        tone="purple"
+                        radius="mini"
+                        dark-text
+                        :name="studentById(payment.studentId)?.name || ''"
+                    />
+                </template>
+                <template #content>
+                    <div :class="$style.paymentInfo">
+                        <b>{{ studentById(payment.studentId)?.name || 'Ученик' }}</b>
+                        <span>{{ payment.date }} · {{ payment.lessons }} {{ humanCount(payment.lessons, 'занятие', 'занятия', 'занятий') }}</span>
+                    </div>
+                </template>
+            </VPaymentHistoryRow>
         </div>
 
-        <div v-else :class="$style.emptyState">
-            <b>История пока пуста</b>
-            <span>Здесь будут заявки и подтверждённые оплаты учеников.</span>
-        </div>
+        <VEmptyState
+            v-else
+            :class="$style.emptyState"
+            title="История пока пуста"
+            description="Здесь будут заявки и подтверждённые оплаты учеников."
+        />
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    border-radius: $radius;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-}
-
 .historyCard {
     padding: $padding;
 
@@ -85,7 +100,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -93,25 +112,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.statIcon {
-    width: $width-block;
-    height: $height-block;
-    display: grid;
-    place-items: center;
-    flex: 0 0 $width-block;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.8;
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -130,26 +134,6 @@ export default {
     &:last-child {
         border-bottom: 0;
         padding-bottom: 0;
-    }
-}
-
-.avatar {
-    width: $width-block-big;
-    height: $height-block-big;
-    flex: 0 0 $width-block-big;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: $white;
-    background: linear-gradient(140deg, var(--purple), var(--purple-dark));
-    font-weight: 700;
-
-    @include text(px2);
-
-    @include respond-to(mobile) {
-        width: $width-block;
-        height: $height-block;
-        flex: 0 0 $width-block;
     }
 }
 
@@ -189,22 +173,6 @@ export default {
     }
 }
 
-.status {
-    color: var(--green);
-    width: fit-content;
-    font-weight: 400;
-
-    @include text(px3);
-
-    &.awaiting {
-        color: var(--amber);
-    }
-
-    &.rejected {
-        color: var(--red);
-    }
-}
-
 .emptyState {
     display: grid;
     justify-items: center;
@@ -220,14 +188,4 @@ export default {
     }
 }
 
-[data-theme='darked'] {
-    .card {
-        border-color: var(--line);
-        background: var(--surface);
-    }
-
-    .avatar {
-        color: var(--canvas);
-    }
-}
 </style>

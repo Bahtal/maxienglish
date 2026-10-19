@@ -3,43 +3,50 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
 import AppButton from '../AppButton.vue';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VStatusBadge from '../VStatusBadge.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton },
+  components: { AppButton, VSectionHeader, VEmptyState, VStatusBadge },
   setup(props, { emit }) { return useWorkspaceView(props, emit); },
 };
 </script>
 
 <template>
-    <section :class="[$style.card, $style.calendarAgenda]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>{{ state.selectedDate === todayKey() ? 'Сегодня' : cap(formatDay(state.selectedDate,{weekday:'long',day:'numeric',month:'long'})) }}</h2>
-                <p>{{ selectedDayLessons.length ? `${selectedDayLessons.length} ${humanCount(selectedDayLessons.length,'занятие','занятия','занятий')}` : 'План на выбранный день' }}</p>
-            </div>
-            <div v-if="state.role === 'teacher'" :class="$style.calendarActions">
-                <AppButton
-                    size="small"
-                    @click="openLessonForm(state.selectedDate)"
-                >
-                    <svg>
-                        <use href="#icon-plus" />
-                    </svg>
-                    &#32;&#32;Добавить урок&#32;
-                </AppButton>
-                <AppButton
-                    variant="secondary"
-                    size="small"
-                    @click="openHomeworkForm()"
-                >
-                    <svg>
-                        <use href="#icon-plus" />
-                    </svg>
-                    &#32;&#32;Дать ДЗ&#32;
-                </AppButton>
-            </div>
-        </div>
+    <section :class="$style.calendarAgenda">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            :title="state.selectedDate === todayKey() ? 'Сегодня' : cap(formatDay(state.selectedDate,{weekday:'long',day:'numeric',month:'long'}))"
+            :description="selectedDayLessons.length ? `${selectedDayLessons.length} ${humanCount(selectedDayLessons.length,'занятие','занятия','занятий')}` : 'План на выбранный день'"
+        >
+            <template #aside>
+                <div v-if="state.role === 'teacher'" :class="$style.calendarActions">
+                    <AppButton
+                        size="small"
+                        @click="openLessonForm(state.selectedDate)"
+                    >
+                        <svg>
+                            <use href="#icon-plus" />
+                        </svg>
+                        &#32;&#32;Добавить урок&#32;
+                    </AppButton>
+                    <AppButton
+                        variant="secondary"
+                        size="small"
+                        @click="openHomeworkForm()"
+                    >
+                        <svg>
+                            <use href="#icon-plus" />
+                        </svg>
+                        &#32;&#32;Дать ДЗ&#32;
+                    </AppButton>
+                </div>
+            </template>
+        </VSectionHeader>
         <button
             v-for="lesson in selectedDayLessons"
             :key="lesson.id"
@@ -49,17 +56,20 @@ export default {
             <span :class="$style.agendaTime">{{ lesson.time }}</span>
             <span :class="$style.agendaMain">
                 <b>{{ state.role === 'teacher' ? studentById(lesson.studentId)?.name : `${lesson.title} с ${state.teacher.name}` }}</b>
-                <small>{{ lesson.kind }} · {{ statusLabel(lesson.status) }}</small>
+                <small>{{ lesson.kind }}</small>
             </span>
-            <span :class="[$style.status, $style[statusClass(lesson.status)]]">{{ statusLabel(lesson.status) }}</span>
+            <VStatusBadge
+                :status="lesson.status"
+                :tone="statusClass(lesson.status)"
+                :label="statusLabel(lesson.status)"
+            />
         </button>
-        <div
+        <VEmptyState
             v-if="!selectedDayLessons.length"
             :class="$style.emptyState"
-        >
-            <b>Занятий нет</b>
-            <span>На эту дату расписание свободно.</span>
-        </div>
+            title="Занятий нет"
+            description="На эту дату расписание свободно."
+        />
     </section>
 </template>
 
@@ -82,8 +92,21 @@ export default {
     padding-right: 0;
     padding-left: 0;
 
+    &:not(:first-child) {
+        padding-top: 8px;
+    }
+
+    &:not(:last-child) {
+        padding-bottom: 8px;
+    }
+
     &:last-child {
+        padding-bottom: 0;
         border-bottom: 0;
+    }
+
+    &:first-child {
+        padding-top: 0;
     }
 
     @include respond-to(mobile) {
@@ -170,11 +193,6 @@ export default {
 }
 
 [data-theme=darked] {
-    .calendarAgenda {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .agendaMain {
         small {
             color: var(--ink);
@@ -184,13 +202,6 @@ export default {
     .agendaDay {
         border-color: var(--line);
     }
-}
-
-.card {
-    border: 1px solid var(--border-color);
-    background: var(--surface);
-    border-radius: $radius;
-    box-shadow: var(--shadow);
 }
 
 .sectionHeading {
@@ -209,49 +220,17 @@ export default {
         letter-spacing: -0.25px;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
         margin: 4px 0 0;
         color: var(--muted);
         font-size: 10px;
-    }
-}
-
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    width: fit-content;
-    padding: 1px 4px;
-    border-radius: $radius;
-    font-weight: 400;
-    white-space: nowrap;
-
-    @include text(px3);
-
-    &:before {
-        content: "";
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    &.unpaid {
-        color: var(--red);
-        background: color-mix(in srgb, var(--red) 10%, var(--surface));
-    }
-
-    &.paid {
-        color: var(--green);
-        background: color-mix(in srgb, var(--green) 10%, var(--surface));
-    }
-
-    &.pending {
-        color: var(--amber);
-        background: color-mix(in srgb, var(--amber) 14%, var(--surface));
     }
 }
 
@@ -287,38 +266,11 @@ export default {
 }
 
 [data-theme=darked] {
-    .card {
-        border-color: var(--line);
-        background-color: var(--surface);
-    }
-
     .emptyState {
         b {
             color: var(--ink);
         }
     }
 
-    .status {
-        &.unpaid {
-            color: var(--red);
-            background: color-mix(in srgb, var(--red) 20%, var(--surface));
-        }
-    }
-}
-
-.paid {
-    --module-placeholder: 0;
-}
-
-.pending {
-    --module-placeholder: 0;
-}
-
-.student {
-    --module-placeholder: 0;
-}
-
-.teacher {
-    --module-placeholder: 0;
 }
 </style>

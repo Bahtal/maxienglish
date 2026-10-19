@@ -4,9 +4,15 @@ import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 import { useBottomSheetDrag } from '../../composables/useBottomSheetDrag.js';
 import { acquireTelegramSwipeLock } from '../../utils/telegramSwipeLock.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VNotificationItem from '../VNotificationItem.vue';
+
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
+  components: { VSectionHeader, VEmptyState, VNotificationItem },
   
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
@@ -43,44 +49,37 @@ export default {
                 aria-hidden="true"
                 @pointerdown="startSheetDrag"
             />
-            <div :class="$style.sectionHeading">
-                <div>
-                    <h2>Уведомления</h2>
-                    <p>События и изменения</p>
-                </div>
-                <button
-                    :class="$style.textLink"
-                    @click="markNotificationsRead"
-                >
-                    Прочитать всё
-                </button>
-            </div>
-            <button
+            <VSectionHeader
+                :class="$style.sectionHeading"
+                title="Уведомления"
+                description="События и изменения"
+            >
+                <template #aside>
+                    <button
+                        :class="$style.textLink"
+                        @click="markNotificationsRead"
+                    >
+                        Прочитать всё
+                    </button>
+                </template>
+            </VSectionHeader>
+            <VNotificationItem
                 v-for="notice in state.notifications.filter((item) => !item.role || item.role === state.role).slice(0,12)"
                 :key="notice.id"
+                as="button"
                 :class="[$style.notificationItemButton, { [$style.unread]: !notice.read }]"
+                :title="notice.title"
+                :body="notice.body"
+                :time="notice.time"
+                :outcome="notice.outcome"
+                :dot-class="$style.noticeDot"
                 @click="openNotification(notice)"
-            >
-                <span :class="$style.noticeDot"></span>
-                <span>
-                    <b>{{ notice.title }}</b>
-                    <p>{{ notice.body }}</p>
-                    <small>{{ notice.time }}</small>
-                    <small
-                        v-if="notice.outcome"
-                        :class="$style.notificationStatus"
-                        :data-status="notice.outcome"
-                    >
-                        {{ ({awaiting:'Ожидает',rescheduled:'Перенесён',cancelled:'Отменён'})[notice.outcome] }}
-                    </small>
-                </span>
-            </button>
-            <div
+            />
+            <VEmptyState
                 v-if="!state.notifications.length"
                 :class="$style.emptyState"
-            >
-                <b>Новых уведомлений нет</b>
-            </div>
+                title="Новых уведомлений нет"
+            />
         </section>
     </div>
 </template>
@@ -101,7 +100,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -109,6 +112,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -181,35 +188,6 @@ export default {
     }
 }
 
-.noticeDot {
-    width: 8px;
-    height: 8px;
-    flex: 0 0 8px;
-    margin-top: 5px;
-    border-radius: 50%;
-    background: var(--purple);
-}
-
-.notificationStatus {
-    margin-left: auto;
-    margin-top: 6px;
-    padding: 4px 8px;
-    border-radius: 999px;
-    color: var(--purple);
-    background: var(--purple-pale);
-    font-size: 8px;
-    font-weight: 700;
-    &[data-status=rescheduled] {
-        color: var(--green);
-        background: var(--mint);
-    }
-
-    &[data-status=cancelled] {
-        color: var(--red);
-        background: color-mix(in srgb, var(--red) 10%, var(--surface));
-    }
-}
-
 .notificationPopover {
     position: absolute;
     top: calc(100% + 12px);
@@ -248,20 +226,6 @@ export default {
         }
     }
 
-    .notificationStatus {
-        color: $dark-purple-dark;
-        background: $dark-purple-pale;
-
-        &[data-status=rescheduled] {
-            color: var(--green);
-            background: $dark-mint;
-        }
-
-        &[data-status=cancelled] {
-            color: var(--red);
-            background: color-mix(in srgb, var(--red) 20%, var(--surface));
-        }
-    }
 }
 
 .notificationItemButton {

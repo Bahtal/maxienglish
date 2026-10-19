@@ -2,9 +2,16 @@
 import { computed } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
 
+import VSectionHeader from '../VSectionHeader.vue';
+import VIcon from '../VIcon.vue';
+
+import VEmptyState from '../VEmptyState.vue';
+import VPaymentHistoryRow from '../VPaymentHistoryRow.vue';
+
 export default {
     props: { workspace: { type: Object, required: true } },
     emits: ['workspace-action'],
+  components: { VSectionHeader, VIcon, VEmptyState, VPaymentHistoryRow },
     setup(props, { emit }) {
         const view = useWorkspaceView(props, emit);
         const payments = computed(() => props.workspace.state.payments
@@ -16,52 +23,49 @@ export default {
 </script>
 
 <template>
-    <section :class="[$style.card, $style.historyCard]">
-        <div :class="$style.sectionHeading">
-            <div>
-                <h2>История оплат</h2>
-                <p>Заявки и подтверждённые платежи</p>
-            </div>
-            <span :class="$style.statIcon">
-                <svg>
-                    <use href="#icon-wallet" />
-                </svg>
-            </span>
-        </div>
+    <section :class="$style.historyCard">
+        <VSectionHeader
+            :class="$style.sectionHeading"
+            title="История оплат"
+            description="Заявки и подтверждённые платежи"
+        >
+            <template #aside>
+                <VIcon
+                    name="wallet"
+                    size="small"
+                    tile
+                />
+            </template>
+        </VSectionHeader>
 
         <div v-if="payments.length" :class="$style.historyList">
-            <article
+            <VPaymentHistoryRow
                 v-for="payment in payments"
                 :key="payment.id"
-                :class="$style.paymentRow">
-                <div :class="$style.paymentMain">
-                    <b>{{ payment.lessons }} {{ humanCount(payment.lessons, 'занятие', 'занятия', 'занятий') }}</b>
-                    <span>{{ payment.date }}</span>
-                </div>
-                <div :class="$style.paymentMeta">
-                    <strong>{{ Number(payment.amount || 0).toLocaleString('ru-RU') }} ₽</strong>
-                    <span :class="[$style.status, $style[payment.status]]">
-                        {{ payment.status === 'awaiting' ? 'Ожидает подтверждения' : payment.status === 'rejected' ? 'Отклонена' : 'Подтверждена' }}
-                    </span>
-                </div>
-            </article>
+                :payment="payment"
+                :status-label="payment.status === 'awaiting' ? 'Ожидает подтверждения' : payment.status === 'rejected' ? 'Отклонена' : 'Подтверждена'"
+                :meta-class="$style.paymentMeta"
+                :class="$style.paymentRow"
+            >
+                <template #content>
+                    <div :class="$style.paymentMain">
+                        <b>{{ payment.lessons }} {{ humanCount(payment.lessons, 'занятие', 'занятия', 'занятий') }}</b>
+                        <span>{{ payment.date }}</span>
+                    </div>
+                </template>
+            </VPaymentHistoryRow>
         </div>
 
-        <div v-else :class="$style.emptyState">
-            <b>Оплат пока нет</b>
-            <span>История заявок и платежей появится здесь.</span>
-        </div>
+        <VEmptyState
+            v-else
+            :class="$style.emptyState"
+            title="Оплат пока нет"
+            description="История заявок и платежей появится здесь."
+        />
     </section>
 </template>
 
 <style lang="scss" module>
-.card {
-    border: 1px solid var(--border-color);
-    border-radius: $radius;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-}
-
 .historyCard {
     padding: $padding;
 
@@ -85,7 +89,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -93,24 +101,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.statIcon {
-    width: $width-block;
-    height: $height-block;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.8;
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -160,22 +154,6 @@ export default {
     }
 }
 
-.status {
-    color: var(--green);
-    font-weight: 400;
-    width: fit-content;
-
-    @include text(px3);
-
-    &.awaiting {
-        color: var(--amber);
-    }
-
-    &.rejected {
-        color: var(--red);
-    }
-}
-
 .emptyState {
     display: grid;
     justify-items: center;
@@ -191,10 +169,4 @@ export default {
     }
 }
 
-[data-theme='darked'] {
-    .card {
-        border-color: var(--line);
-        background: var(--surface);
-    }
-}
 </style>

@@ -10,6 +10,7 @@ import StudentPaymentHistory from '../components/student/StudentPaymentHistory.v
 import TeacherPaymentRequests from '../components/teacher/TeacherPaymentRequests.vue';
 import TeacherPaymentBalances from '../components/teacher/TeacherPaymentBalances.vue';
 import TeacherPaymentHistory from '../components/teacher/TeacherPaymentHistory.vue';
+import VIcon from '../components/VIcon.vue';
 
 export default {
     props: { workspace: { type: Object, required: true } },
@@ -22,6 +23,7 @@ export default {
         TeacherPaymentRequests,
         TeacherPaymentBalances,
         TeacherPaymentHistory,
+        VIcon,
     },
     setup(props, { emit }) {
         const view = useWorkspaceView(props, emit);
@@ -67,17 +69,20 @@ export default {
 
 <template>
     <div v-if="state.role === 'student'" :class="$style.studentLayout">
-        <div :class="$style.column">
-            <StudentBalanceCard
-                :workspace="workspace"
-                @workspace-action="$emit('workspace-action', $event)"
-            />
-        </div>
+        <StudentBalanceCard
+            :workspace="workspace"
+            @workspace-action="$emit('workspace-action', $event)"
+        />
 
-        <div :class="$style.column">
-            <StudentPaymentSummary :workspace="workspace" />
-            <StudentPaymentHistory :workspace="workspace" />
-        </div>
+        <StudentPaymentSummary
+            :class="$style.board"
+            :workspace="workspace"
+        />
+
+        <StudentPaymentHistory
+            :class="$style.board"
+            :workspace="workspace"
+        />
     </div>
 
     <div v-else :class="$style.teacherLayout">
@@ -86,32 +91,52 @@ export default {
                 v-for="metric in paymentMetrics"
                 :key="metric.label"
                 :class="[$style.card, $style.metricCard]">
-                <span :class="$style.sectionIcon">
-                    <svg>
-                        <use :href="`#icon-${metric.icon}`" />
-                    </svg>
-                </span>
+                <VIcon
+                    :class="$style.sectionIcon"
+                    :name="metric.icon"
+                    size="small"
+                    tile
+                />
                 <b>{{ metric.value }}</b>
                 <span>{{ metric.label }}</span>
             </article>
         </div>
 
         <TeacherPaymentRequests
+            :class="$style.board"
             :workspace="workspace"
             @workspace-action="$emit('workspace-action', $event)" />
 
-        <div :class="$style.teacherColumns">
-            <TeacherPaymentBalances :workspace="workspace" />
-            <TeacherPaymentHistory :workspace="workspace" />
+        <div :class="$style.teacherPaymentSections">
+            <TeacherPaymentBalances :class="$style.board" :workspace="workspace" />
+            <TeacherPaymentHistory :class="$style.board" :workspace="workspace" />
         </div>
     </div>
 </template>
 
 <style lang="scss" module>
 .studentLayout,
-.teacherLayout,
-.column {
-    display: grid;
+.teacherLayout {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: $gap;
+    align-items: stretch;
+
+    @include respond-to(mobile) {
+        gap: $gap-sm;
+    }
+}
+
+.studentLayout {
+    > * {
+        min-width: 0;
+    }
+}
+
+.teacherPaymentSections {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     gap: $gap;
 
@@ -120,26 +145,7 @@ export default {
     }
 }
 
-.studentLayout {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
-    align-items: start;
-}
-
-.teacherLayout {
-    grid-template-columns: minmax(0, 1fr);
-}
-
-.teacherColumns {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    gap: $gap;
-
-    @include respond-to(mobile) {
-        gap: $gap-sm;
-    }
-}
-
+.board,
 .card {
     min-width: 0;
     border: 1px solid var(--border-color);
@@ -171,7 +177,11 @@ export default {
         margin: 0;
         font-weight: 700;
 
-        @include text(px2);
+        @include text(px1);
+
+        @include respond-to(mobile) {
+            @include text(px1_5);
+        }
     }
 
     p {
@@ -179,27 +189,10 @@ export default {
         color: var(--muted);
 
         @include text(px2);
-    }
-}
 
-.sectionIcon {
-    width: $width-block;
-    height: $height-block;
-    flex: 0 0 $width-block;
-    display: grid;
-    place-items: center;
-    border-radius: $radius-mini;
-    color: var(--purple);
-    background: var(--purple-pale);
-
-    svg {
-        width: $svg;
-        height: $svg;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 1.8;
-        stroke-linecap: round;
-        stroke-linejoin: round;
+        @include respond-to(mobile) {
+            @include text(px3);
+        }
     }
 }
 
@@ -291,6 +284,7 @@ export default {
 }
 
 [data-theme='darked'] {
+    .board,
     .card {
         border-color: var(--line);
         background: var(--surface);
@@ -302,21 +296,15 @@ export default {
 }
 
 @include respond-to(tablet) {
-    .studentLayout,
-    .teacherColumns {
-        grid-template-columns: minmax(0, 1fr);
+    .teacherPaymentSections {
+        gap: $gap-sm;
     }
 }
 
 @include respond-to(mobile) {
     .studentLayout,
     .teacherLayout,
-    .column {
-        gap: $gap-sm;
-    }
-
-    .teacherColumns {
-        grid-template-columns: minmax(0, 1fr);
+    .teacherPaymentSections {
         gap: $gap-sm;
     }
 

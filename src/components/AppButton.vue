@@ -93,6 +93,10 @@ const safeColor = computed(() => ['violet', 'blue', 'mint', 'amber', 'red'].incl
         border-radius: $radius-mini;
 
         @include text(px2);
+
+        @include respond-to(mobile) {
+            @include text(px4);
+        }
     }
 
     &[data-size='large'] {
