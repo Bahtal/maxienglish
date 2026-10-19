@@ -152,12 +152,12 @@ Deno.serve(async (request) => {
     })
     if (error) throw error
 
-    const result = data as { status?: string; student_name?: string; teacher_name?: string } | null
+    const result = data as { status?: string; student_name?: string } | null
     if (result?.status === 'accepted') {
       await sendBotMessage(
         botToken,
         chat.id,
-        `Привет, ${result.student_name || 'ученик'}! 👋\nВы подключены к кабинету преподавателя ${result.teacher_name || 'преподавателя'}. Откройте приложение кнопкой ниже.`,
+        `Добро пожаловать в MaxiEnglish\nПривет, ${result.student_name || 'ученик'}! Откройте @MaxiEnglish_bot и нажмите «Запустить» или отправьте /start, чтобы получать уведомления. После этого можно открыть приложение: ${appUrl} ✨`,
         true,
       )
     } else if (result?.status === 'already_linked') {

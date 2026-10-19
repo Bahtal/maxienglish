@@ -125,12 +125,11 @@ async function queueWeeklyReports(admin: ReturnType<typeof createClient>) {
     const earned = (paymentsResult.data ?? []).reduce((sum, payment) => sum + Number(payment.amount_rub || 0), 0)
     const body = [
       `📊 Итоги недели: ${range.label}`,
-      `Проведено уроков: ${completed}`,
-      `Отменено: ${cancelled}`,
-      `Подтверждено оплат: ${new Intl.NumberFormat('ru-RU').format(earned)} ₽`,
+      `⭐️Проведено уроков: ${completed}`,
+      `🦥Отменено: ${cancelled}`,
+      `🌼Подтверждено оплат: ${new Intl.NumberFormat('ru-RU').format(earned)} ₽`,
       `Предстоит в ближайшие 7 дней: ${upcomingResult.count ?? 0}`,
-      `Учеников без оплаченных занятий: ${unpaidResult.count ?? 0}`,
-      '',
+      `🌬️Учеников без оплаченных занятий: ${unpaidResult.count ?? 0}`,
       `Открыть приложение: ${appUrl}`,
     ].join('\n')
     const { error: queueError } = await admin.from('telegram_message_queue').upsert({

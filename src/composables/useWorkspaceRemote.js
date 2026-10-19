@@ -20,6 +20,25 @@ export function useWorkspaceRemote(workspace) {
     let profileThemeReadVersion = 0;
     let fullscreenWebApp = null;
 
+    function isMobileOrTabletTelegram(webApp) {
+        const platform = String(webApp?.platform || '').toLowerCase();
+
+        if (platform === 'ios' || platform === 'android') {
+            return true;
+        }
+
+        if (platform === 'macos' || platform === 'tdesktop') {
+            return false;
+        }
+
+        const userAgent = navigator.userAgent || '';
+        const isMobileUserAgent = /iPhone|iPad|iPod|Android/i.test(userAgent);
+        const isIPadDesktopUserAgent = /Macintosh/i.test(userAgent)
+            && navigator.maxTouchPoints > 1;
+
+        return isMobileUserAgent || isIPadDesktopUserAgent;
+    }
+
     function onTelegramFullscreenFailed(event = {}) {
         console.warn(
             'Telegram Mini App could not enter fullscreen mode:',
@@ -28,7 +47,11 @@ export function useWorkspaceRemote(workspace) {
     }
 
     function requestTelegramFullscreen(webApp) {
-        if (!isTelegram || typeof webApp?.requestFullscreen !== 'function') return;
+        if (!isTelegram
+            || !isMobileOrTabletTelegram(webApp)
+            || typeof webApp?.requestFullscreen !== 'function') {
+            return;
+        }
 
         if (typeof webApp.isVersionAtLeast === 'function' && !webApp.isVersionAtLeast('8.0')) {
             return;
@@ -349,8 +372,11 @@ export function useWorkspaceRemote(workspace) {
 
         const webApp = window.Telegram?.WebApp;
         webApp?.ready();
-        webApp?.expand();
-        requestTelegramFullscreen(webApp);
+
+        if (isMobileOrTabletTelegram(webApp)) {
+            webApp?.expand();
+            requestTelegramFullscreen(webApp);
+        }
 
         if (isTelegram && !await restoreCachedSession()) {
             await authenticateTelegram();
