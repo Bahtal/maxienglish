@@ -1,0 +1,221 @@
+@use 'sass:map';
+
+$breakpoints: (
+    mobile: 768px,
+    tablet: 1280px,
+);
+
+@mixin respond-to($breakpoint) {
+    @if not map.has-key($breakpoints, $breakpoint) {
+        @error "Unknown breakpoint: #{$breakpoint}";
+    }
+
+    @media (max-width: map.get($breakpoints, $breakpoint)) {
+        @content;
+    }
+}
+
+@mixin text($name) {
+    @if $name == px1 {
+        font-size: 16px;
+        line-height: 24px;
+        letter-spacing: -0.2;
+    }
+    
+    @if $name == px2 {
+        font-size: 12px;
+        line-height: 16px;
+        letter-spacing: -0.2;
+    }
+    
+    @if $name == px3 {
+        font-size: 10px;
+        line-height: 12px;
+        letter-spacing: -0.2;
+    }
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/montserrat-light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/montserrat-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('./fonts/montserrat-bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+// Shared Sass tokens are injected into every Vue SCSS module by Vite.
+/*$white: #FFFFFF;
+$transparent: transparent;*/
+
+/*$ink: #202333;
+$border-color: #dcdcdc;
+$muted: #85899a;
+$line: #eceef3;
+$surface: $white;
+$canvas: #f5f6fa;
+$purple: #6558e8;
+$purple-dark: #5044d3;
+$purple-pale: #e4e0ff;
+$mint: #dff7ef;
+$green: #21896b;
+$amber: #f3b545;
+$red: #d75c65;
+$dark-ink: #eef0fa;
+$dark-border-color: #353e58;
+$dark-muted: #a1a9bc;
+$dark-line: #2d354d;
+$dark-surface: #1c2439;
+$dark-canvas: #111827;
+$dark-purple: #aa9fff;
+$dark-purple-dark: #c1b9ff;
+$dark-purple-pale: #302b4c;
+$dark-mint: #173a34;
+$dark-green: #72d2b2;
+$dark-amber: #f2c46c;
+$dark-red: #f28a93;*/
+
+$white: #f1efeb;
+$transparent: transparent;
+
+$ink: #404573;
+$border-color: #cacedd;
+$muted: #4873b1;
+$line: #cccfda;
+$surface: $white;
+$canvas: #ebe6db;
+$purple: #26378e;
+$purple-dark: #20355f;
+$purple-pale: #D0E6FD;
+$mint: #dff7ef;
+$green: #21896b;
+$amber: #f3b545;
+$red: #d75c65;
+$calendar-blue: #347fd1;
+$calendar-purple: #8756c7;
+
+$dark-ink: #f8f4e5;
+$dark-border-color: #38447d;
+$dark-muted: #abc4ff;
+$dark-line: #38447d;
+$dark-surface: #002147;
+$dark-canvas: #0a1029;
+$dark-purple: #e7cfbd;
+$dark-purple-dark: #f0e1d1;
+$dark-purple-pale: #33569d;
+$dark-mint: #173a34;
+$dark-green: #72d2b2;
+$dark-amber: #f2c46c;
+$dark-red: #f28a93;
+
+$radius-micro: 8px;
+$radius-mini: 12px;
+$radius: 16px;
+$shadow: 0 14px 40px rgba($ink, 0.055);
+$dark-shadow: 0 16px 42px rgba($ink, 0.19);
+$font-family: 'Montserrat', sans-serif;
+
+$width-block: 35px;
+$height-block: 35px;
+
+$width-block-big: 48px;
+$height-block-big: 48px;
+
+$padding: 24px;
+$padding-mobile: 10px;
+
+$gap: 16px;
+$gap-sm: 8px;
+
+$svg: 20px;
+
+
+$themes: (
+  default: (
+    ink: $ink,
+    border-color: $border-color,
+    muted: $muted,
+    line: $line,
+    surface: $surface,
+    canvas: $canvas,
+    purple: $purple,
+    purple-dark: $purple-dark,
+    purple-pale: $purple-pale,
+    mint: $mint,
+    green: $green,
+    amber: $amber,
+    red: $red,
+    calendar-blue: $calendar-blue,
+    calendar-purple: $calendar-purple,
+    radius: $radius,
+    shadow: $shadow,
+  ),
+  darked: (
+    ink: $dark-ink,
+    border-color: $dark-border-color,
+    muted: $dark-muted,
+    line: $dark-line,
+    surface: $dark-surface,
+    canvas: $dark-canvas,
+    purple: $dark-purple,
+    purple-dark: $dark-purple-dark,
+    purple-pale: $dark-purple-pale,
+    mint: $dark-mint,
+    green: $dark-green,
+    amber: $dark-amber,
+    red: $dark-red,
+    calendar-blue: $calendar-blue,
+    calendar-purple: $calendar-purple,
+    radius: $radius,
+    shadow: $dark-shadow,
+  ),
+);
+
+$theme-previews: (
+  default: (
+    surface: $surface,
+    purple: $purple,
+    text: $ink,
+    background: $canvas,
+    border: $line,
+  ),
+  darked: (
+    surface: $dark-surface,
+    purple: $dark-purple,
+    text: $dark-ink,
+    background: $dark-canvas,
+    border: $dark-line,
+  ),
+);
+
+// CSS custom properties stay runtime-switchable while their values live here.
+@mixin apply-theme($theme-name) {
+  $theme: map.get($themes, $theme-name);
+
+  @each $name, $value in $theme {
+    --#{"" + $name}: #{$value};
+  }
+}
+
+@mixin apply-theme-preview($theme-name) {
+  $theme: map.get($theme-previews, $theme-name);
+
+  @each $name, $value in $theme {
+    --preview-#{"" + $name}: #{$value};
+  }
+}
