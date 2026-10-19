@@ -206,7 +206,14 @@ function finishPageSlide() {
 .appShell {
     color-scheme: light;
 
-    --device-safe-bottom: var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+    --device-safe-top: calc(
+        var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px))
+        + var(--tg-content-safe-area-inset-top, 0px)
+    );
+    --device-safe-bottom: calc(
+        var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))
+        + var(--tg-content-safe-area-inset-bottom, 0px)
+    );
     --mobile-navigation-clearance: calc(72px + var(--device-safe-bottom) + 12px);
 
     @include apply-theme(default);
@@ -261,7 +268,7 @@ function finishPageSlide() {
 
 .cacheStatus {
     position: fixed;
-    top: max(10px, env(safe-area-inset-top));
+    top: max(10px, var(--device-safe-top));
     left: 50%;
     z-index: 1000;
     display: flex;
@@ -419,7 +426,7 @@ function finishPageSlide() {
 @include respond-to(mobile) {
     .mainArea {
         margin: 0;
-        padding: 0 $padding-mobile var(--mobile-navigation-clearance);
+        padding: var(--device-safe-top) $padding-mobile var(--mobile-navigation-clearance);
     }
 }
 

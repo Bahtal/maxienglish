@@ -18,6 +18,33 @@ export function useWorkspaceRemote(workspace) {
     const initialCache = isTelegram ? readWorkspaceCache(telegramUserId) : null;
     const cachedWorkspaceUserId = ref(initialCache?.supabaseUserId || '');
     let profileThemeReadVersion = 0;
+    let fullscreenWebApp = null;
+
+    function onTelegramFullscreenFailed(event = {}) {
+        console.warn(
+            'Telegram Mini App could not enter fullscreen mode:',
+            event.error || 'UNKNOWN',
+        );
+    }
+
+    function requestTelegramFullscreen(webApp) {
+        if (!isTelegram || typeof webApp?.requestFullscreen !== 'function') return;
+
+        if (typeof webApp.isVersionAtLeast === 'function' && !webApp.isVersionAtLeast('8.0')) {
+            return;
+        }
+
+        if (webApp.isFullscreen) return;
+
+        fullscreenWebApp = webApp;
+        webApp.onEvent?.('fullscreenFailed', onTelegramFullscreenFailed);
+
+        try {
+            webApp.requestFullscreen();
+        } catch (error) {
+            console.warn('Telegram Mini App fullscreen request threw an error:', error);
+        }
+    }
 
     function withTimeout(promise, duration, message) {
         let timeoutId = 0;
@@ -323,6 +350,7 @@ export function useWorkspaceRemote(workspace) {
         const webApp = window.Telegram?.WebApp;
         webApp?.ready();
         webApp?.expand();
+        requestTelegramFullscreen(webApp);
 
         if (isTelegram && !await restoreCachedSession()) {
             await authenticateTelegram();
@@ -337,6 +365,8 @@ export function useWorkspaceRemote(workspace) {
         window.removeEventListener('focus', scheduleRemoteRefresh);
         window.clearTimeout(realtimeRefreshTimer);
         window.clearTimeout(toastTimer.value);
+        fullscreenWebApp?.offEvent?.('fullscreenFailed', onTelegramFullscreenFailed);
+        fullscreenWebApp = null;
 
         if (realtimeChannel.value) {
             void supabase.removeChannel(realtimeChannel.value);
