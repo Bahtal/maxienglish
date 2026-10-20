@@ -113,7 +113,7 @@ $muted: rgba($purple, 0.8);
 $border-color: rgba($purple, 0.2);
 $line: rgba($purple, 0.2);
 $purple-dark: #282137;
-$purple-pale: #D0E6FD;
+$purple-pale: $purple-dark;
 $mint: #dff7ef;
 $green: #21896b;
 $amber: #f3b545;
@@ -130,10 +130,10 @@ $dark-surface: #242240;
 $dark-canvas: #282137;
 $dark-purple: #f8e6dd;
 $dark-purple-dark: #f8e6dd;
-$dark-purple-pale: #37336c;
+$dark-purple-pale: $dark-canvas;
 $dark-ink: #f8e6dd;
 $dark-border-color: rgba($dark-purple, 0.2);
-$dark-muted: #abc4ff;
+$dark-muted: rgba($dark-ink, 0.72);
 $dark-line: rgba($dark-purple, 0.2);
 $dark-mint: #173a34;
 $dark-green: #72d2b2;
@@ -148,6 +148,8 @@ $ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 $shadow: 0 14px 40px rgba($ink, 0.055);
 $dark-shadow: 0 16px 42px rgba($ink, 0.19);
 $font-family: 'Montserrat', sans-serif;
+
+$board-shadow: inset -4px 6px 9px -4px rgb(255 255 255 / 40%), 3px 7px 11px -6px rgb(0 0 0 / 33%), inset 4px -3px 12px -7px rgb(131 96 40 / 52%), inset -3px -1px 13px -10px rgb(49 49 49 / 41%), -7px -8px 12px -7px rgb(255 252 248);
 
 $width-block: 35px;
 $height-block: 35px;
@@ -176,6 +178,7 @@ $themes: (
     purple: $purple,
     purple-dark: $purple-dark,
     purple-pale: $purple-pale,
+    on-purple-pale: $surface,
     mint: $mint,
     green: $green,
     amber: $amber,
@@ -195,6 +198,7 @@ $themes: (
     purple: $dark-purple,
     purple-dark: $dark-purple-dark,
     purple-pale: $dark-purple-pale,
+    on-purple-pale: $dark-ink,
     mint: $dark-mint,
     green: $dark-green,
     amber: $dark-amber,

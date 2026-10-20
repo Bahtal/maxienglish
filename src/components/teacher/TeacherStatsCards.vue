@@ -89,7 +89,7 @@ export default {
         transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
         &:hover {
-            border-color: var(--purple-pale);
+            border-color: var(--purple);
             transform: translateY(-1px);
             box-shadow: 0 9px 24px color-mix(in srgb, var(--purple) 7%, transparent);
         }

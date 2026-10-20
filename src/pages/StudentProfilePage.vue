@@ -31,19 +31,20 @@ export default {
     @include respond-to(mobile) {
         gap: $gap-sm;
     }
-}
 
-.board {
-    min-width: 0;
-    border: 1px solid var(--border-color);
-    border-radius: $radius;
-    background: var(--surface);
-    box-shadow: var(--shadow);
+    .board {
+        min-width: 0;
+        border-radius: $radius;
+        background: var(--surface);
+
+        &:not(:first-child) {
+            box-shadow: $board-shadow;
+        }
+    }
 }
 
 [data-theme='darked'] {
     .board {
-        border-color: var(--line);
         background: var(--surface);
     }
 }

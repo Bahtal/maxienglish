@@ -95,7 +95,7 @@ const toneAliases = {
     margin-top: 6px;
     padding: 4px 8px;
     border-radius: 999px;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     background: var(--purple-pale);
     font-size: 8px;
     font-weight: 700;
@@ -192,7 +192,7 @@ const toneAliases = {
     }
 
     .notice {
-        color: $dark-purple-dark;
+        color: var(--on-purple-pale);
         background: $dark-purple-pale;
     }
 

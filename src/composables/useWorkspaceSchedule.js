@@ -282,25 +282,21 @@ export function useWorkspaceSchedule(workspace) {
         }
     }
 
-    async function deletePastLesson(lesson) {
+    async function deleteLesson(lesson) {
         if (state.role !== 'teacher' || modal.busy || !lesson?.id) return;
-        if (dateObject(lesson.date, lesson.time) >= new Date()) {
-            showToast('Удалить можно только прошедшее занятие.');
-            return;
-        }
 
         modal.busy = true;
         try {
             if (auth.user) {
-                const { error } = await supabase.rpc('teacher_delete_past_lesson', {
+                const { error } = await supabase.rpc('teacher_delete_lesson', {
                     p_lesson_id: lesson.id,
                 });
 
                 if (error) {
                     const migrationMissing = ['PGRST202', '42883'].includes(error.code)
-                        || /teacher_delete_past_lesson|schema cache/i.test(error.message || '');
+                        || /teacher_delete_lesson|schema cache/i.test(error.message || '');
                     showToast(migrationMissing
-                        ? 'Удаление прошедших уроков ещё не настроено в Supabase. Выполните supabase/past-lesson-deletion.sql в SQL Editor.'
+                        ? 'Удаление уроков ещё не настроено в Supabase. Выполните новую миграцию из supabase/migrations в SQL Editor.'
                         : error.message || 'Не удалось удалить урок.');
                     return;
                 }
@@ -321,7 +317,7 @@ export function useWorkspaceSchedule(workspace) {
 
             closeModal();
             persist();
-            showToast('Прошедший урок удалён из календаря и истории. Остаток занятий не изменился.');
+            showToast('Урок удалён из календаря и истории. Остаток занятий не изменился.');
 
             if (auth.user) {
                 try {
@@ -346,6 +342,6 @@ export function useWorkspaceSchedule(workspace) {
         requestReschedule,
         changeLesson,
         createLesson,
-        deletePastLesson,
+        deleteLesson,
     };
 }

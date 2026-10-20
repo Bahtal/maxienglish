@@ -311,7 +311,7 @@ export default {
     flex: 0 0 auto;
     padding: 4px 8px;
     border-radius: 999px;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     background: var(--purple-pale);
     font-weight: 700;
 

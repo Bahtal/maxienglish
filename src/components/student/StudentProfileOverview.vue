@@ -158,7 +158,7 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     padding: 12px 10px;
-    border: 1px solid var(--line);
+    box-shadow: $board-shadow;
     border-radius: $radius;
 
     b {

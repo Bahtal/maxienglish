@@ -8,7 +8,7 @@ import HomeworkDetailsModal from '../modals/HomeworkDetailsModal.vue';
 import LessonFormModal from '../modals/LessonFormModal.vue';
 import RescheduleFormModal from '../modals/RescheduleFormModal.vue';
 import CancelConfirmModal from '../modals/CancelConfirmModal.vue';
-import DeletePastLessonModal from '../modals/DeletePastLessonModal.vue';
+import DeleteLessonModal from '../modals/DeleteLessonModal.vue';
 import LessonDetailsModal from '../modals/LessonDetailsModal.vue';
 import HomeworkFormModal from '../modals/HomeworkFormModal.vue';
 import StudentFormModal from '../modals/StudentFormModal.vue';
@@ -27,7 +27,7 @@ export default {
       LessonFormModal,
       RescheduleFormModal,
       CancelConfirmModal,
-      DeletePastLessonModal,
+      DeleteLessonModal,
       LessonDetailsModal,
       HomeworkFormModal,
       StudentFormModal,
@@ -126,8 +126,8 @@ export default {
                         :workspace="workspace"
                         @workspace-action="$emit('workspace-action', $event)"
                     />
-                    <DeletePastLessonModal
-                        v-else-if="modal.type === 'delete-past-lesson'"
+                    <DeleteLessonModal
+                        v-else-if="modal.type === 'delete-lesson'"
                         :workspace="workspace"
                         @workspace-action="$emit('workspace-action', $event)"
                     />

@@ -168,12 +168,18 @@ export default {
             width: calc((100% - 40px) / 5);
             border-radius: $radius-mini;
             background: var(--purple-pale);
-            opacity: .72;
             transform: translateX(var(--active-nav-shift, 0)) scaleX(1) scaleY(1);
             transform-origin: center;
             transition: all 300ms ease;
             pointer-events: none;
             will-change: transform;
+            box-shadow: 0 10px 11px -4px rgb(0 0 0 / 50%), inset -3px -2px 4px -2px rgb(255 255 255 / 19%), 0 -5px 11px -3px rgb(255 255 255 / 60%), inset 0 4px 3px -2px rgb(229 221 205 / 24%), inset -3px 4px 3px -4px rgb(255 255 255 / 34%), inset 1px 1px 6px -2px rgba(0, 0, 0, 0.2);
+           /* box-shadow: 0 15px 25px -4px rgba(0, 0, 0, 0.5),
+            inset 0 -3px 4px -1px rgba(0, 0, 0, 0.2),
+            0 -10px 15px -1px rgba(255, 255, 255, 0.6),
+            inset 0 3px 4px -1px rgba(255, 255, 255, 0.2),
+            inset 0 0 5px 1px rgba(255, 255, 255, 0.8),
+            inset 0 20px 30px 0 rgba(255, 255, 255, 0.2);*/
         }
 
         &.stretched::before {
@@ -197,7 +203,19 @@ export default {
             }
 
             &.active {
-                color: var(--purple);
+                color: var(--on-purple-pale);
+
+                span {
+                    text-shadow: 0 0 3px rgb(255 228 147 / 60%);
+                }
+            }
+
+            &.active .navIcon {
+                color: inherit;
+
+                svg {
+                    filter: drop-shadow(0 0 3px rgb(255 228 147 / 60%));
+                }
             }
         }
 
@@ -216,7 +234,7 @@ export default {
         color: var(--purple);
 
         &.active {
-            color: var(--purple);
+            color: var(--on-purple-pale);
         }
     }
 }

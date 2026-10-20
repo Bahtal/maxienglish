@@ -63,7 +63,9 @@ const safeColor = computed(() => ['violet', 'blue', 'mint', 'amber', 'red'].incl
 
     &[data-variant='secondary'] {
         background: var(--purple-pale);
-        color: var(--purple-dark);
+        color: var(--on-purple-pale);
+        box-shadow: inset 3px 3px 5px -4px var(--on-purple-pale), inset -3px -3px 5px -4px var(--surface), 0px 7px 5px -4px rgba(0, 0, 0, .4), 0px -4px 9px -4px rgba(255, 255, 255, .4);
+        border: none;
     }
 
     &[data-variant='outline'] {
@@ -125,7 +127,7 @@ const safeColor = computed(() => ['violet', 'blue', 'mint', 'amber', 'red'].incl
     .button {
         &[data-variant='secondary'] {
             background: $dark-purple-pale;
-            color: $dark-purple-dark;
+            color: var(--on-purple-pale);
         }
 
         &[data-variant='outline'] {

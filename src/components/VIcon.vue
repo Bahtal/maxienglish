@@ -78,8 +78,9 @@ defineProps({
         height: $height-block;
         flex-basis: $width-block;
         border-radius: $radius-mini;
-        color: var(--purple);
+        color: var(--on-purple-pale);
         background: var(--purple-pale);
+        box-shadow: inset 3px 3px 5px -4px var(--on-purple-pale), inset -3px -3px 5px -4px var(--surface), 0px 7px 5px -4px rgba(0, 0, 0, .4), 0px -4px 9px -4px rgba(255, 255, 255, .4);
     }
 }
 
@@ -129,7 +130,7 @@ defineProps({
 
 :global([data-theme='darked']) {
     .tile {
-        color: $dark-purple-dark;
+        color: var(--on-purple-pale);
         background: $dark-purple-pale;
     }
 }

@@ -117,7 +117,7 @@ export default {
     display: grid;
     place-items: center;
     color: $white;
-    box-shadow: 0 0 22px -7px var(--ink);
+    box-shadow: inset 3px 3px 5px -4px var(--on-purple-pale), inset -3px -3px 5px -4px var(--surface), 0px 7px 5px -4px rgba(0, 0, 0, 0.4), 0px -4px 9px -4px rgba(255, 255, 255, 0.4);
     animation: brand 10s infinite linear;
 
     svg {

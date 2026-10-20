@@ -104,7 +104,7 @@ function openLink(url) {
     }
 
     &:hover {
-        border-color: var(--purple-pale);
+        border-color: var(--purple);
         transform: translateY(-1px);
     }
 }

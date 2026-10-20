@@ -64,10 +64,9 @@ export default {
 
     .board,
     :global(.linkCard) {
-        border: 1px solid var(--border-color);
         border-radius: $radius;
         background: var(--surface);
-        box-shadow: var(--shadow);
+        box-shadow: $board-shadow;
     }
 }
 
@@ -75,8 +74,14 @@ export default {
     .dashboardGrid {
         .board,
         :global(.linkCard) {
-            border-color: var(--line);
+            border-color: color-mix(in srgb, var(--ink) 12%, var(--surface));
             background: var(--surface);
+            box-shadow:
+                inset 0 1px 0 color-mix(in srgb, var(--ink) 12%, transparent),
+                inset 0 -1px 0 color-mix(in srgb, var(--canvas) 70%, transparent),
+                0 2px 4px color-mix(in srgb, var(--canvas) 80%, transparent),
+                0 12px 20px color-mix(in srgb, var(--canvas) 72%, transparent),
+                -4px -4px 12px color-mix(in srgb, var(--ink) 5%, transparent);
         }
     }
 }

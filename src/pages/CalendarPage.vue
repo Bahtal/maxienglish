@@ -22,10 +22,9 @@ export default {
 <style lang="scss" module>
 .board {
     min-width: 0;
-    border: 1px solid var(--border-color);
     border-radius: $radius;
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: $board-shadow;
 }
 
 .calendarLayout {
@@ -41,7 +40,6 @@ export default {
 
 [data-theme='darked'] {
     .board {
-        border-color: var(--line);
         background: var(--surface);
     }
 }

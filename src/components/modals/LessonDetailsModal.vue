@@ -14,11 +14,10 @@ export default {
   components: { AppButton, VAvatar, VStatusBadge, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
-    view.canDeletePastLesson = computed(() => {
+    view.canDeleteLesson = computed(() => {
       const lesson = props.workspace.modal.data;
       return props.workspace.state.role === 'teacher'
-        && Boolean(lesson?.id)
-        && props.workspace.dateObject(lesson.date, lesson.time) < new Date();
+        && Boolean(lesson?.id);
     });
     return view;
   },
@@ -65,9 +64,9 @@ export default {
                 variant="danger"
                 @click="openModal('cancel-confirm', 'Отменить урок?', modal.data, studentById(modal.data.studentId)?.name)">Отменить урок</AppButton>
             <AppButton
-                v-if="canDeletePastLesson"
+                v-if="canDeleteLesson"
                 variant="danger"
-                @click="openModal('delete-past-lesson', 'Удалить прошедший урок?', modal.data, studentById(modal.data.studentId)?.name)">Удалить урок</AppButton>
+                @click="openModal('delete-lesson', 'Удалить урок?', modal.data, studentById(modal.data.studentId)?.name)">Удалить урок</AppButton>
             <AppButton
                 v-if="state.role==='student' && modal.data.lessonStatus==='scheduled'"
                 variant="outline"

@@ -82,7 +82,7 @@ function select(option) {
         color: var(--muted);
 
         &:hover:not(:disabled) {
-            color: var(--purple-pale);
+            color: var(--purple);
         }
     }
 

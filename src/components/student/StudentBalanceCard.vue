@@ -62,7 +62,7 @@ export default {
     --balance-wave-4: #6d8eca;
     --balance-wave-5: #8babdb;
     --balance-wave-6: #acc9ec;
-    --balance-wave-7: #d0e6fd;
+    --balance-wave-7: #e2f3ff;
 
     position: relative;
     overflow: hidden;
@@ -72,7 +72,7 @@ export default {
     min-height: 239px;
     padding: 24px;
     border-radius: $radius;
-    color: var(--purple-pale);
+    color: var(--on-purple-pale);
     background: linear-gradient(118deg, var(--purple-dark) 0%, var(--purple) 52%, var(--purple) 100%);
 }
 
@@ -94,7 +94,7 @@ export default {
         --balance-wave-4: #215a99;
         --balance-wave-5: #417bb6;
         --balance-wave-6: #76a2d1;
-        --balance-wave-7: #b5d0ec;
+        --balance-wave-7: #e2f3ff;
 
         color: var(--ink);
         background: linear-gradient(118deg, #10244d 0%, #183c69 52%, #1b4778 100%);
@@ -131,7 +131,7 @@ export default {
 }
 .balanceKicker {
     margin: 0 0 17px;
-    color: color-mix(in srgb, var(--purple-pale) 76%, transparent);
+    color: color-mix(in srgb, var(--on-purple-pale) 76%, transparent);
 
     @include text(px2);
 }
@@ -142,7 +142,7 @@ export default {
 }
 .balanceCaption {
     margin: 7px 0 20px;
-    color: color-mix(in srgb, var(--purple-pale) 78%, transparent);
+    color: color-mix(in srgb, var(--on-purple-pale) 78%, transparent);
     font-size: 12px;
 }
 .balanceMark {

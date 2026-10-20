@@ -12,7 +12,7 @@ const workspaceActions = [
     'createLesson',
     'createStudent',
     'createStudentInvitation',
-    'deletePastLesson',
+    'deleteLesson',
     'go',
     'markAttendance',
     'markHomeworkDone',

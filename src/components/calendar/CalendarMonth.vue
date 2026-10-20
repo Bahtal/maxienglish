@@ -175,6 +175,7 @@ export default {
 
     &:hover {
         background: var(--purple-pale);
+        color: var(--on-purple-pale);
     }
 
     &.muted {
@@ -182,7 +183,7 @@ export default {
     }
 
     &.today {
-        color: var(--purple);
+        color: var(--on-purple-pale);
         background: var(--purple-pale);
         font-weight: 800;
     }

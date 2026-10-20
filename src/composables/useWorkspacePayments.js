@@ -1,5 +1,6 @@
 import { supabase } from '../supabase.js';
-import { cap, formatDay, todayKey } from '../utils/appConfig.js';
+import { cap, formatDay, humanCount, todayKey } from '../utils/appConfig.js';
+import { getStudentPaymentAmount, getStudentSingleLessonPrice } from '../utils/studentPricing.js';
 
 export function useWorkspacePayments(workspace) {
     const { state, auth, selectedStudent } = workspace;
@@ -40,13 +41,24 @@ export function useWorkspacePayments(workspace) {
     async function requestPayment(payload) {
         if (workspace.modal.busy) return;
 
-        const plan = state.subscriptionPlans.find((entry) => entry.id === String(payload.plan) && entry.active);
-        if (!plan) {
-            showToast('Выберите активный абонемент.');
+        const lessonCount = Number(payload.lessonCount);
+        const activePlans = state.subscriptionPlans.filter((plan) => plan.active);
+        const maxLessonCount = activePlans.reduce((maximum, plan) => (
+            Math.max(maximum, Number(plan.lessons) || 0)
+        ), 0);
+
+        if (!Number.isInteger(lessonCount) || lessonCount < 1 || lessonCount > maxLessonCount) {
+            showToast('Выберите доступное количество занятий.');
             return;
         }
 
         const student = selectedStudent.value;
+        const unitPrice = getStudentSingleLessonPrice(
+            student?.customSingleLessonPrice,
+            state.teacher.singleLessonPrice,
+            student?.customPlans,
+        );
+
         if (state.payments.some((payment) => payment.studentId === student?.id && payment.status === 'awaiting')) {
             showToast('Заявка на оплату уже ожидает подтверждения.');
             closeModal();
@@ -61,8 +73,8 @@ export function useWorkspacePayments(workspace) {
                     return;
                 }
 
-                const { data, error } = await supabase.rpc('request_student_payment', {
-                    p_plan_id: plan.id,
+                const { data, error } = await supabase.rpc('request_student_payment_quantity', {
+                    p_lesson_count: lessonCount,
                 });
                 if (error) {
                     showToast(error.message || 'Не удалось отправить заявку на оплату.');
@@ -83,8 +95,23 @@ export function useWorkspacePayments(workspace) {
                     return;
                 }
             } else {
-                state.payments.unshift({ id: `pay-${Date.now()}`, studentId: state.studentUser.id, lessons: plan.lessons, amount: plan.price, status: 'awaiting', date: cap(formatDay(todayKey())) });
-                state.notifications.unshift({ id: `notice-${Date.now()}`, role: 'teacher', title: 'Новая заявка на оплату', body: `${state.studentUser.name} отправила заявку на ${plan.lessons} занятий.`, time: 'Только что', read: false });
+                state.payments.unshift({
+                    id: `pay-${Date.now()}`,
+                    studentId: state.studentUser.id,
+                    lessons: lessonCount,
+                    amount: getStudentPaymentAmount(lessonCount, activePlans, unitPrice),
+                    status: 'awaiting',
+                    date: cap(formatDay(todayKey())),
+                });
+                state.notifications.unshift({
+                    id: `notice-${Date.now()}`,
+                    role: 'teacher',
+                    title: 'Новая заявка на оплату',
+                    body: `${state.studentUser.name} отправила заявку на ${lessonCount} `
+                        + `${humanCount(lessonCount, 'занятие', 'занятия', 'занятий')}.`,
+                    time: 'Только что',
+                    read: false,
+                });
             }
 
             closeModal();

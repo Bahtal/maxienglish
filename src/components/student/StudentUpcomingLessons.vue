@@ -221,7 +221,7 @@ function openLesson(lesson) {
     width: $width-block-big;
     height: $height-block-big;
     border-radius: $radius-mini;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     background: var(--purple-pale);
 
     b {
@@ -231,7 +231,7 @@ function openLesson(lesson) {
     }
 
     small {
-        color: var(--purple);
+        color: var(--on-purple-pale);
         text-transform: lowercase;
 
         @include text(px2);
@@ -305,7 +305,7 @@ function openLesson(lesson) {
     }
 
     .dateBlock {
-        color: $dark-purple-dark;
+        color: var(--on-purple-pale);
         background: $dark-purple-pale;
 
         small {

@@ -142,7 +142,7 @@ export default {
     border-radius: $radius;
     width: $width-block-big;
     height: $height-block-big;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     font-weight: 700;
 
     @include text(px2);

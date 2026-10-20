@@ -263,7 +263,7 @@ export default {
     width: $width-block-big;
     height: $height-block-big;
     border-radius: $radius-mini;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     background: var(--purple-pale);
     font-weight: 700;
 
@@ -322,7 +322,7 @@ export default {
     display: grid;
     place-items: center;
     border-radius: 11px;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     background: var(--purple-pale);
     font-weight: 700;
 }

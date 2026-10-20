@@ -16,13 +16,13 @@ export default {
 </script>
 
 <template>
-    <div :class="$style.deletePastLesson">
-        <p>Запись исчезнет из календаря и истории занятий. Остаток оплаченных занятий ученика не изменится.</p>
+    <div :class="$style.deleteLesson">
+        <p>Урок исчезнет из календаря, истории занятий и списка связанных уведомлений. Оплаченный баланс ученика не изменится.</p>
         <VModalActions :class="$style.modalActions">
             <AppButton
                 variant="danger"
                 :loading="modal.busy"
-                @click="deletePastLesson(modal.data)">
+                @click="deleteLesson(modal.data)">
                 Удалить урок
             </AppButton>
             <AppButton
@@ -36,7 +36,7 @@ export default {
 </template>
 
 <style lang="scss" module>
-.deletePastLesson {
+.deleteLesson {
     > p {
         margin: 0;
         color: var(--muted);

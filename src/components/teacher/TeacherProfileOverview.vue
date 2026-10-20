@@ -166,7 +166,13 @@ export default {
     }
 
     &:hover {
+        color: var(--on-purple-pale);
         background: var(--purple-pale);
+
+        small,
+        b {
+            color: inherit;
+        }
     }
 
     > span:first-child {
@@ -319,10 +325,11 @@ export default {
         &:hover {
             border-color: var(--purple);
             background-color: var(--purple-pale);
+            color: var(--on-purple-pale);
         }
 
         b {
-            color: var(--ink);
+            color: inherit;
         }
     }
 
@@ -349,7 +356,7 @@ export default {
     transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
     &:hover:not(:disabled) {
-        border-color: var(--purple-pale);
+        border-color: var(--purple);
         transform: translateY(-1px);
         box-shadow: 0 9px 24px color-mix(in srgb, var(--purple) 7%, transparent);
     }

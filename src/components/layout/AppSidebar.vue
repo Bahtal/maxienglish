@@ -152,12 +152,12 @@ export default {
     }
 
     &:hover {
-        color: var(--purple);
+        color: var(--on-purple-pale);
         background: var(--purple-pale);
     }
 
     &.active {
-        color: var(--purple);
+        color: var(--on-purple-pale);
         background: var(--purple-pale);
     }
 }

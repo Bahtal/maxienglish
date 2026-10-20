@@ -216,7 +216,7 @@ const dueLabel = (value) => value ? `до ${new Intl.DateTimeFormat('ru-RU', { d
     overflow: hidden;
     padding: 0 8px;
     border-radius: 999px;
-    color: var(--purple);
+    color: var(--on-purple-pale);
     background: var(--purple-pale);
     font-size: 8px;
     font-weight: 700;

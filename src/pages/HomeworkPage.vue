@@ -230,10 +230,9 @@ export default {
 
 <style lang="scss" module>
 .card {
-    border: 1px solid var(--border-color);
     background: var(--surface);
     border-radius: $radius;
-    box-shadow: var(--shadow);
+    box-shadow: $board-shadow;
 }
 
 .sectionCard {

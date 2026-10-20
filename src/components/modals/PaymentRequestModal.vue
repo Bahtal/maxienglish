@@ -1,31 +1,56 @@
 <script>
-import { computed, unref } from 'vue';
+import { computed, ref, unref, watch } from 'vue';
 import { useWorkspaceView } from '../../composables/useWorkspaceView.js';
-import { getStudentSingleLessonPrice } from '../../utils/studentPricing.js';
+import { getStudentPaymentAmount, getStudentSingleLessonPrice } from '../../utils/studentPricing.js';
 
 import AppButton from '../AppButton.vue';
-
+import StudentLessonCountPicker from '../student/StudentLessonCountPicker.vue';
 import VEmptyState from '../VEmptyState.vue';
-
 import VModalActions from '../VModalActions.vue';
 
 export default {
   props: { workspace: { type: Object, required: true } },
   emits: ['workspace-action'],
-  components: { AppButton, VEmptyState, VModalActions },
+  components: { AppButton, StudentLessonCountPicker, VEmptyState, VModalActions },
   setup(props, { emit }) {
     const view = useWorkspaceView(props, emit);
+    const selectedLessonCount = ref(1);
+
     view.activePlans = computed(() => props.workspace.state.subscriptionPlans.filter((plan) => plan.active));
+    view.maxLessonCount = computed(() => view.activePlans.value.reduce((maximum, plan) => (
+      Math.max(maximum, Number(plan.lessons) || 0)
+    ), 0));
     view.effectiveSingleLessonPrice = computed(() => {
       const student = unref(props.workspace.selectedStudent);
-      return getStudentSingleLessonPrice(student?.customSingleLessonPrice, props.workspace.state.teacher.singleLessonPrice);
+      return getStudentSingleLessonPrice(
+        student?.customSingleLessonPrice,
+        props.workspace.state.teacher.singleLessonPrice,
+        student?.customPlans,
+      );
     });
+    view.selectedLessonCount = selectedLessonCount;
+    view.matchingPlan = computed(() => view.activePlans.value.find((plan) => (
+      Number(plan.lessons) === selectedLessonCount.value
+    )) || null);
+    view.totalAmount = computed(() => getStudentPaymentAmount(
+      selectedLessonCount.value,
+      view.activePlans.value,
+      view.effectiveSingleLessonPrice.value,
+    ));
+    view.formatRubles = (amount) => new Intl.NumberFormat('ru-RU', {
+      maximumFractionDigits: 2,
+    }).format(Number(amount) || 0);
     view.hasPendingPayment = computed(() => {
       const student = unref(props.workspace.selectedStudent);
       return Boolean(student?.id && props.workspace.state.payments.some((payment) => (
         payment.studentId === student.id && payment.status === 'awaiting'
       )));
     });
+
+    watch(view.maxLessonCount, (maximum) => {
+      selectedLessonCount.value = Math.min(Math.max(maximum, 1), selectedLessonCount.value);
+    });
+
     return view;
   },
 };
@@ -37,23 +62,35 @@ export default {
         :class="$style.formStack"
         @submit.prevent="submitWorkspaceForm($event, 'requestPayment')">
         <div :class="$style.singleLessonPrice">
-            <span>Цена одного урока</span>
-            <b>{{ Number(effectiveSingleLessonPrice || 0).toLocaleString('ru-RU') }} ₽</b>
+            <span>Цена занятия при оплате поштучно</span>
+            <b>{{ formatRubles(effectiveSingleLessonPrice) }} ₽</b>
         </div>
-        <label
-            v-for="(plan,index) in activePlans"
-            :key="plan.id"
-            :class="$style.planOption">
-            <input
-                type="radio"
-                name="plan"
-                :value="plan.id"
-                :checked="index===0" />
-            <span>
-                <b>{{ plan.lessons }}{{ humanCount(plan.lessons,'занятие','занятия','занятий') }}</b>
-                <small>{{ plan.price.toLocaleString('ru-RU') }} ₽</small>
-            </span>
-        </label>
+        <input
+            type="hidden"
+            name="lessonCount"
+            :value="selectedLessonCount" />
+        <div
+            v-if="maxLessonCount"
+            :class="$style.quantitySection">
+            <p>Сколько занятий оплатить?</p>
+            <StudentLessonCountPicker
+                v-model="selectedLessonCount"
+                :max="maxLessonCount" />
+            <small>Можно выбрать от 1 до {{ maxLessonCount }} занятий</small>
+        </div>
+        <div
+            v-if="maxLessonCount"
+            :class="$style.totalAmount">
+            <span>К оплате</span>
+            <b>{{ formatRubles(totalAmount) }} ₽</b>
+            <small v-if="matchingPlan">
+                Цена абонемента на {{ selectedLessonCount }}
+                {{ humanCount(selectedLessonCount, 'занятие', 'занятия', 'занятий') }}
+            </small>
+            <small v-else>
+                {{ formatRubles(effectiveSingleLessonPrice) }} ₽ × {{ selectedLessonCount }}
+            </small>
+        </div>
         <VEmptyState
             v-if="hasPendingPayment || !activePlans.length"
             :class="$style.emptyState"
@@ -128,6 +165,52 @@ export default {
     }
 }
 
+.quantitySection {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+
+    p {
+        margin: 0;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    > small {
+        color: var(--muted);
+        font-size: 11px;
+    }
+}
+
+.totalAmount {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--canvas);
+    color: var(--ink);
+
+    > span {
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    > b {
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    > small {
+        grid-column: 1 / -1;
+        color: var(--muted);
+        font-size: 11px;
+    }
+}
+
 .modalActions {
     display: flex;
     flex-wrap: wrap;
@@ -135,53 +218,4 @@ export default {
     margin-top: 18px;
 }
 
-.planOption {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border: 1px solid var(--line);
-    border-radius: 13px;
-    cursor: pointer;
-
-    &:has(input:checked) {
-        border-color: var(--purple);
-        background: var(--purple-pale);
-    }
-
-    input {
-        accent-color: var(--purple);
-    }
-
-    b {
-        font-size: 11px;
-    }
-
-    small {
-        display: block;
-        margin-top: 4px;
-        color: var(--muted);
-
-        @include text(px2);
-    }
-
-    span {
-        display: flex;
-        flex: 1;
-        justify-content: space-between;
-        gap: 12px;
-    }
-}
-
-[data-theme=darked] {
-    .planOption {
-        border-color: var(--line);
-        background-color: var(--surface);
-
-        &:has(input:checked) {
-            border-color: var(--purple);
-            background-color: var(--purple-pale);
-        }
-    }
-}
 </style>

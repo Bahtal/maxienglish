@@ -148,10 +148,9 @@ export default {
 .board,
 .card {
     min-width: 0;
-    border: 1px solid var(--border-color);
     border-radius: $radius;
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: $board-shadow;
 }
 
 .planCard {

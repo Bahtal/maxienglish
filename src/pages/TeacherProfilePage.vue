@@ -35,15 +35,13 @@ export default {
 
 .board {
     min-width: 0;
-    border: 1px solid var(--border-color);
     border-radius: $radius;
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: $board-shadow;
 }
 
 [data-theme='darked'] {
     .board {
-        border-color: var(--line);
         background: var(--surface);
     }
 }

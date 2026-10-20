@@ -317,7 +317,7 @@ function finishPageSlide() {
     }
 
     50% {
-        box-shadow: 0 0 1px var(--purple-pale);
+        box-shadow: 0 0 1px var(--purple);
     }
 
     100% {
